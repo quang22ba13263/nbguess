@@ -352,17 +352,16 @@ async def handle_connection(websocket, path):
                 del game_rooms[current_room.id]
 
 async def main():
-    # Glitch provides port in environment variable
+    # Chỉ lắng nghe trên localhost vì sẽ giao tiếp qua proxy
     port = int(os.environ.get("PORT", 8765))
     
-    # Không cần SSL trên Glitch vì họ đã xử lý HTTPS
     server = await websockets.serve(
         handle_connection,
-        "0.0.0.0",  
+        "127.0.0.1",  # Chỉ lắng nghe trên localhost
         port
     )
     
-    logger.info(f"WebSocket server started at ws://0.0.0.0:{port}")
+    logger.info(f"WebSocket server started at ws://127.0.0.1:{port}")
     
     # Clean up empty rooms periodically
     async def cleanup_empty_rooms():

@@ -772,7 +772,7 @@
             const host = window.location.hostname;
             const serverUrl = window.location.hostname === 'localhost' 
                 ? 'ws://localhost:8765' 
-                : `${protocol}//${host}`;
+                : `${protocol}//${host}/ws`;
                 
             try {
                 socket = new WebSocket(serverUrl);

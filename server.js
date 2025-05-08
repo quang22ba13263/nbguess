@@ -6,6 +6,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const path = require('path');
+const http = require('http');
+const WebSocket = require('ws');
+const { spawn } = require('child_process');
 
 // Initialize Express app
 const app = express();
@@ -409,7 +412,92 @@ app.get('/:page.html', (req, res) => {
     }
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+// Tạo HTTP server
+const server = http.createServer(app);
+
+// Khởi động Python WebSocket server như một process con
+const startPythonServer = () => {
+  console.log("Starting Python WebSocket server...");
+  const pythonProcess = spawn('python', ['server.py']);
+
+  pythonProcess.stdout.on('data', (data) => {
+    console.log(`Python server: ${data}`);
+  });
+
+  pythonProcess.stderr.on('data', (data) => {
+    console.error(`Python server error: ${data}`);
+  });
+
+  pythonProcess.on('close', (code) => {
+    console.log(`Python server exited with code ${code}`);
+    // Restart nếu server bị crash
+    if (code !== 0) {
+      console.log("Restarting Python server...");
+      setTimeout(startPythonServer, 5000);
+    }
+  });
+
+  return pythonProcess;
+};
+
+// Tạo một WebSocket proxy server
+const wss = new WebSocket.Server({ noServer: true });
+
+// Xử lý upgrade HTTP request thành WebSocket connection
+server.on('upgrade', (request, socket, head) => {
+  // Nếu đường dẫn là /ws - chuyển tiếp đến Python WebSocket server
+  if (request.url === '/ws') {
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      // Tạo kết nối đến Python WebSocket server
+      const pythonWs = new WebSocket('ws://localhost:8765');
+      
+      // Chuyển tiếp messages từ client đến Python server
+      ws.on('message', (message) => {
+        if (pythonWs.readyState === WebSocket.OPEN) {
+          pythonWs.send(message);
+        }
+      });
+      
+      // Chuyển tiếp messages từ Python server đến client
+      pythonWs.on('message', (message) => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(message);
+        }
+      });
+      
+      // Xử lý đóng kết nối
+      ws.on('close', () => {
+        pythonWs.close();
+      });
+      
+      pythonWs.on('close', () => {
+        ws.close();
+      });
+      
+      // Xử lý lỗi
+      ws.on('error', (error) => {
+        console.error('Client WebSocket error:', error);
+      });
+      
+      pythonWs.on('error', (error) => {
+        console.error('Python WebSocket error:', error);
+        ws.close();
+      });
+    });
+  }
+});
+
+// Khởi động server
+server.listen(PORT, () => {
+  console.log(`Express server running at http://localhost:${PORT}`);
+  
+  // Khởi động Python WebSocket server
+  const pythonServer = startPythonServer();
+  
+  // Xử lý khi Express server đóng
+  process.on('SIGINT', () => {
+    console.log('Shutting down servers...');
+    pythonServer.kill();
+    process.exit(0);
+  });
 }); 
