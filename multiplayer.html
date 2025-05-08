@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NUMBRLE - Multiplayer Mode</title>
+    <title>Multiplayer - NUMBRLE</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -60,116 +60,45 @@
         main {
             flex: 1;
             display: flex;
+            flex-direction: column;
             padding: 20px;
-            gap: 20px;
             max-width: 1200px;
             margin: 0 auto;
             width: 100%;
         }
         
-        .game-section {
-            flex: 2;
+        .game-container {
             display: flex;
             flex-direction: column;
+            gap: 20px;
         }
         
-        .game-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            background-color: #1a1a1b;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #333;
-        }
-        
-        .game-info {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .game-title {
-            font-size: 1.2rem;
+        .section-title {
+            font-size: 1.8rem;
             font-weight: 600;
             color: #f5b301;
-        }
-        
-        .game-subtitle {
-            font-size: 0.9rem;
-            color: #aaa;
-        }
-        
-        .game-room {
-            font-size: 0.9rem;
-            padding: 8px 15px;
-            background-color: rgba(245, 179, 1, 0.1);
-            border-radius: 4px;
-            color: #f5b301;
-        }
-        
-        .game-status {
-            margin-top: 10px;
-        }
-        
-        .game-content {
-            background-color: #1a1a1b;
-            border-radius: 8px;
-            padding: 20px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid #333;
-        }
-        
-        .number-range {
-            font-size: 1.1rem;
-            color: #aaa;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .number-range span {
-            color: #f5b301;
-            font-weight: 600;
-        }
-        
-        .current-player {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: rgba(245, 179, 1, 0.1);
-            border-radius: 4px;
-        }
-        
-        .player-turn {
-            color: #f5b301;
-            font-weight: 600;
-        }
-        
-        .guess-form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-        
-        .guess-input {
-            width: 100%;
-            max-width: 300px;
-            padding: 15px;
-            border-radius: 4px;
-            background-color: #2a2a2b;
-            border: 1px solid #333;
-            color: #fff;
-            font-size: 1.2rem;
-            text-align: center;
             margin-bottom: 15px;
+            text-align: center;
         }
         
-        .guess-input:focus {
-            outline: none;
-            border-color: #f5b301;
+        /* Game lobby styles */
+        .lobby-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #1a1a1b;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+        }
+        
+        .lobby-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         
         .btn {
@@ -189,231 +118,432 @@
             transform: translateY(-2px);
         }
         
-        .btn:disabled {
-            background-color: #444;
-            color: #777;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .game-history {
-            flex: 1;
-            margin-top: 20px;
-            overflow-y: auto;
-            background-color: #212122;
-            border-radius: 4px;
-            padding: 10px;
-        }
-        
-        .history-item {
-            display: flex;
-            align-items: center;
-            padding: 8px;
-            margin-bottom: 5px;
-            border-bottom: 1px solid #333;
-        }
-        
-        .history-player {
-            font-weight: 600;
-            margin-right: 10px;
-            color: #f5b301;
-        }
-        
-        .history-guess {
-            font-weight: 600;
-            margin-right: 10px;
-        }
-        
-        .history-result {
-            font-size: 0.9rem;
-            padding: 3px 8px;
-            border-radius: 4px;
-        }
-        
-        .result-higher {
-            background-color: #b59f3b;
-            color: #121213;
-        }
-        
-        .result-lower {
-            background-color: #538d4e;
-            color: #121213;
-        }
-        
-        .result-correct {
-            background-color: #f5b301;
-            color: #121213;
-        }
-        
-        .chat-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .players-list {
-            background-color: #1a1a1b;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid #333;
-        }
-        
-        .players-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: #f5b301;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .player-item {
-            display: flex;
-            align-items: center;
-            padding: 8px 5px;
-            border-bottom: 1px solid #333;
-        }
-        
-        .player-item:last-child {
-            border-bottom: none;
-        }
-        
-        .player-avatar {
-            width: 30px;
-            height: 30px;
-            background-color: #444;
-            border-radius: 50%;
-            margin-right: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            color: #fff;
-        }
-        
-        .player-name {
-            flex: 1;
-        }
-        
-        .player-score {
-            font-weight: 600;
-            color: #f5b301;
-        }
-        
-        .chat-container {
-            background-color: #1a1a1b;
-            border-radius: 8px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid #333;
-            overflow: hidden;
-        }
-        
-        .chat-header {
-            padding: 15px;
-            border-bottom: 1px solid #333;
-            font-weight: 600;
-            color: #f5b301;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .chat-messages {
-            flex: 1;
-            padding: 15px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .message {
-            padding: 10px;
-            border-radius: 4px;
-            max-width: 80%;
-            word-break: break-word;
-        }
-        
-        .message-system {
-            align-self: center;
-            background-color: #212122;
-            color: #888;
-            font-size: 0.9rem;
-            max-width: 100%;
-            text-align: center;
-        }
-        
-        .message-sender {
-            align-self: flex-end;
-            background-color: #f5b301;
-            color: #121213;
-        }
-        
-        .message-receiver {
-            align-self: flex-start;
-            background-color: #2a2a2b;
-        }
-        
-        .message-info {
-            font-size: 0.8rem;
-            color: #777;
-            margin-top: 5px;
-        }
-        
-        .message-sender .message-info {
-            color: rgba(0, 0, 0, 0.6);
-        }
-        
-        .chat-input {
-            display: flex;
-            padding: 15px;
-            border-top: 1px solid #333;
-            gap: 10px;
-        }
-        
-        .chat-input input {
-            flex: 1;
-            padding: 12px 15px;
-            border-radius: 4px;
-            background-color: #2a2a2b;
-            border: 1px solid #333;
-            color: #fff;
-        }
-        
-        .chat-input input:focus {
-            outline: none;
-            border-color: #f5b301;
-        }
-        
-        .chat-input button {
-            background-color: #f5b301;
-            color: #121213;
-            border: none;
-            padding: 0 15px;
-            border-radius: 4px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        
-        .game-actions {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-            gap: 10px;
-        }
-        
-        .btn-leave {
+        .btn-outline {
             background-color: transparent;
             border: 2px solid #f5b301;
             color: #f5b301;
         }
         
-        .btn-leave:hover {
-            background-color: rgba(245, 179, 1, 0.1);
+        .btn-outline:hover {
+            background-color: #f5b301;
+            color: #121213;
+        }
+        
+        .room-list {
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .room-card {
+            background-color: #2a2a2b;
+            border-radius: 6px;
+            padding: 15px;
+            border: 1px solid #444;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .room-card:hover {
+            border-color: #f5b301;
+            transform: translateY(-3px);
+        }
+        
+        .room-id {
+            font-size: 0.8rem;
+            color: #999;
+            margin-bottom: 10px;
+        }
+        
+        .room-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .room-players, .room-rounds {
+            font-size: 0.9rem;
+            color: #ddd;
+        }
+        
+        .join-room-btn {
+            width: 100%;
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+        
+        /* Create room modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: #1a1a1b;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid #333;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #f5b301;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            background-color: #2a2a2b;
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #f5b301;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+        
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+        
+        /* Game room styles */
+        .game-room {
+            display: none;
+            flex-direction: column;
+        }
+        
+        .room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .room-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #f5b301;
+        }
+        
+        .room-code {
+            background-color: #2a2a2b;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        .game-area {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .game-board {
+            flex: 1;
+            min-width: 300px;
+            background-color: #1a1a1b;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #333;
+        }
+        
+        .players-list {
+            width: 250px;
+            background-color: #1a1a1b;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #333;
+        }
+        
+        .player-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .player-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #2a2a2b;
+            margin-right: 10px;
+            overflow: hidden;
+        }
+        
+        .player-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .player-info {
+            flex: 1;
+        }
+        
+        .player-name {
+            font-weight: 500;
+            color: #ddd;
+        }
+        
+        .player-score {
+            font-size: 0.8rem;
+            color: #f5b301;
+        }
+        
+        .round-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .round-number {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #f5b301;
+            margin-bottom: 5px;
+        }
+        
+        .round-status {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .guess-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 30px;
+        }
+        
+        .guess-range {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #aaa;
+        }
+        
+        .guess-form {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .guess-input {
+            flex: 1;
+            padding: 12px 15px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            background-color: #2a2a2b;
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        /* Round results */
+        .round-results {
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .results-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #f5b301;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .target-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #f5b301;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .guesses-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .guess-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #2a2a2b;
+            border-radius: 4px;
+        }
+        
+        .winner-badge {
+            background-color: #f5b301;
+            color: #121213;
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin-left: 10px;
+        }
+        
+        .next-round-btn {
+            margin-top: 20px;
+        }
+        
+        /* Final results */
+        .game-results {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            background-color: #1a1a1b;
+            border-radius: 8px;
+            padding: 30px;
+            border: 1px solid #333;
+            margin-top: 20px;
+        }
+        
+        .final-results-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #f5b301;
+            margin-bottom: 20px;
+        }
+        
+        .winner-announcement {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .final-scores {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .final-score-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background-color: #2a2a2b;
+            border-radius: 4px;
+        }
+        
+        .final-player-name {
+            font-weight: 500;
+        }
+        
+        .final-player-score {
+            font-weight: 600;
+            color: #f5b301;
+        }
+        
+        .winner-item {
+            border: 2px solid #f5b301;
+        }
+        
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #2a2a2b;
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.error {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .notification.success {
+            border-left: 4px solid #28a745;
+        }
+        
+        .notification.info {
+            border-left: 4px solid #17a2b8;
+        }
+        
+        .connection-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 10;
+        }
+        
+        .status-connected {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid #28a745;
+        }
+        
+        .status-disconnected {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+        
+        .status-connecting {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid #ffc107;
         }
         
         footer {
@@ -424,19 +554,13 @@
             border-top: 1px solid #3a3a3c;
         }
         
-        @media (max-width: 900px) {
-            main {
+        @media (max-width: 768px) {
+            .game-area {
                 flex-direction: column;
             }
             
-            .game-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            
-            .game-room {
-                align-self: flex-start;
+            .players-list {
+                width: 100%;
             }
         }
     </style>
@@ -451,253 +575,740 @@
     </header>
     
     <main>
-        <div class="game-section">
-            <div class="game-header">
-                <div class="game-info">
-                    <div class="game-title">Multiplayer Number Guessing</div>
-                    <div class="game-subtitle">Take turns guessing the number</div>
-                </div>
-                <div class="game-room">Room Code: <strong>ABCDE</strong></div>
-            </div>
-            
-            <div class="game-content">
-                <div class="number-range">
-                    Guess a number between <span>1</span> and <span>100</span>
+        <div class="game-container">
+            <!-- Lobby Section -->
+            <div class="lobby-section" id="lobby-section">
+                <h2 class="section-title">Game Lobby</h2>
+                <div class="lobby-actions">
+                    <button class="btn" id="create-room-btn">Create Room</button>
+                    <button class="btn btn-outline" id="refresh-rooms-btn">Refresh Rooms</button>
                 </div>
                 
-                <div class="current-player">
-                    Current Turn: <span class="player-turn">Player1</span>
-                    <div class="game-status">Time remaining: 30s</div>
-                </div>
-                
-                <div class="guess-form">
-                    <input type="number" class="guess-input" id="guess-input" min="1" max="100" placeholder="Enter your guess...">
-                    <button class="btn" id="guess-btn">SUBMIT GUESS</button>
-                </div>
-                
-                <div class="game-history" id="game-history">
-                    <div class="history-item">
-                        <span class="history-player">Player2:</span>
-                        <span class="history-guess">42</span>
-                        <span class="history-result result-higher">HIGHER</span>
+                <div class="room-list" id="room-list">
+                    <!-- Rooms will be dynamically added here -->
+                    <div class="no-rooms-message" id="no-rooms-message" style="text-align: center; color: #888; width: 100%;">
+                        No active game rooms found. Create a new room to get started!
                     </div>
-                    <div class="history-item">
-                        <span class="history-player">Player1:</span>
-                        <span class="history-guess">67</span>
-                        <span class="history-result result-lower">LOWER</span>
-                    </div>
-                    <div class="history-item">
-                        <span class="history-player">System:</span>
-                        <span>Game started - Guess the number between 1-100</span>
-                    </div>
-                </div>
-                
-                <div class="game-actions">
-                    <button class="btn btn-leave" id="leave-btn">LEAVE GAME</button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="chat-section">
-            <div class="players-list">
-                <div class="players-title">
-                    <i class="fas fa-users"></i> Players (3/4)
-                </div>
-                
-                <div class="player-item">
-                    <div class="player-avatar">P1</div>
-                    <div class="player-name">Player1 (You)</div>
-                    <div class="player-score">0 pts</div>
-                </div>
-                
-                <div class="player-item">
-                    <div class="player-avatar">P2</div>
-                    <div class="player-name">Player2</div>
-                    <div class="player-score">0 pts</div>
-                </div>
-                
-                <div class="player-item">
-                    <div class="player-avatar">P3</div>
-                    <div class="player-name">Player3</div>
-                    <div class="player-score">0 pts</div>
                 </div>
             </div>
             
-            <div class="chat-container">
-                <div class="chat-header">
-                    <i class="fas fa-comment-alt"></i> Game Chat
+            <!-- Game Room Section -->
+            <div class="game-room" id="game-room">
+                <div class="room-header">
+                    <div class="room-name">Game Room</div>
+                    <div class="room-code" id="room-code">CODE: XYZ123</div>
                 </div>
                 
-                <div class="chat-messages" id="chat-messages">
-                    <div class="message message-system">
-                        Game started. Good luck everyone!
+                <div class="game-area">
+                    <div class="game-board">
+                        <div class="round-info">
+                            <div class="round-number" id="round-number">Round 1 of 3</div>
+                            <div class="round-status" id="round-status">Waiting for players to join...</div>
+                        </div>
+                        
+                        <div class="start-game-area" id="start-game-area" style="text-align: center; margin-top: 30px;">
+                            <button class="btn" id="start-game-btn">Start Game</button>
+                        </div>
+                        
+                        <div class="guess-area" id="guess-area" style="display: none;">
+                            <div class="guess-range">Guess a number between <span id="min-num">1</span> and <span id="max-num">100</span></div>
+                            <form class="guess-form" id="guess-form">
+                                <input type="number" class="guess-input" id="guess-input" placeholder="Your guess" min="1" max="100" required>
+                                <button type="submit" class="btn">Submit</button>
+                            </form>
+                        </div>
+                        
+                        <div class="round-results" id="round-results">
+                            <h3 class="results-title">Round Results</h3>
+                            <div class="target-number" id="target-number">42</div>
+                            <div class="guesses-list" id="guesses-list">
+                                <!-- Guesses will be added here -->
+                            </div>
+                            <button class="btn next-round-btn" id="next-round-btn">Next Round</button>
+                        </div>
                     </div>
                     
-                    <div class="message message-receiver">
-                        <div class="message-content">Hi everyone! Good luck 🍀</div>
-                        <div class="message-info">Player2 • 2:34 PM</div>
-                    </div>
-                    
-                    <div class="message message-sender">
-                        <div class="message-content">Thanks! Good luck to you too!</div>
-                        <div class="message-info">You • 2:35 PM</div>
-                    </div>
-                    
-                    <div class="message message-system">
-                        Player3 joined the game
-                    </div>
-                    
-                    <div class="message message-receiver">
-                        <div class="message-content">Hi all, sorry I'm late!</div>
-                        <div class="message-info">Player3 • 2:36 PM</div>
+                    <div class="players-list">
+                        <h3 style="margin-bottom: 15px; color: #f5b301;">Players</h3>
+                        <div id="players-container">
+                            <!-- Players will be added here -->
+                        </div>
                     </div>
                 </div>
                 
-                <div class="chat-input">
-                    <input type="text" placeholder="Type a message..." id="chat-input">
-                    <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
+                <div class="game-results" id="game-results">
+                    <h3 class="final-results-title">Game Over</h3>
+                    <div class="winner-announcement" id="winner-announcement">Player 1 wins!</div>
+                    <div class="final-scores" id="final-scores">
+                        <!-- Final scores will be added here -->
+                    </div>
+                    <button class="btn" id="back-to-lobby-btn">Back to Lobby</button>
                 </div>
             </div>
         </div>
     </main>
     
+    <!-- Create Room Modal -->
+    <div class="modal" id="create-room-modal">
+        <div class="modal-content">
+            <h3 class="modal-title">Create Game Room</h3>
+            <form id="create-room-form">
+                <div class="form-group">
+                    <label for="max-players-input">Max Players (2-6):</label>
+                    <input type="number" id="max-players-input" min="2" max="6" value="4">
+                </div>
+                <div class="form-group">
+                    <label for="rounds-input">Number of Rounds (1-10):</label>
+                    <input type="number" id="rounds-input" min="1" max="10" value="3">
+                </div>
+                <div class="form-group">
+                    <label for="min-number-input">Minimum Number:</label>
+                    <input type="number" id="min-number-input" min="1" max="999" value="1">
+                </div>
+                <div class="form-group">
+                    <label for="max-number-input">Maximum Number:</label>
+                    <input type="number" id="max-number-input" min="10" max="1000" value="100">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="cancel-create-room">Cancel</button>
+                    <button type="submit" class="btn">Create Room</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Connection Status Indicator -->
+    <div class="connection-status status-connecting" id="connection-status">
+        Connecting...
+    </div>
+    
+    <!-- Notification Element -->
+    <div class="notification" id="notification"></div>
+    
     <footer>
         <p>© 2023 NUMBRLE - The Ultimate Number Guessing Game</p>
     </footer>
-
+    
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // DOM Elements
-            const guessInput = document.getElementById('guess-input');
-            const guessBtn = document.getElementById('guess-btn');
-            const gameHistory = document.getElementById('game-history');
-            const leaveBtn = document.getElementById('leave-btn');
-            const chatInput = document.getElementById('chat-input');
-            const sendBtn = document.getElementById('send-btn');
-            const chatMessages = document.getElementById('chat-messages');
+        // Global variables
+        let socket = null;
+        let currentRoom = null;
+        let playerId = null;
+        let playerData = null;
+        let hasSubmittedGuess = false;
+        
+        // DOM Elements
+        const lobbySection = document.getElementById('lobby-section');
+        const gameRoom = document.getElementById('game-room');
+        const roomList = document.getElementById('room-list');
+        const noRoomsMessage = document.getElementById('no-rooms-message');
+        const createRoomBtn = document.getElementById('create-room-btn');
+        const refreshRoomsBtn = document.getElementById('refresh-rooms-btn');
+        const createRoomModal = document.getElementById('create-room-modal');
+        const createRoomForm = document.getElementById('create-room-form');
+        const cancelCreateRoomBtn = document.getElementById('cancel-create-room');
+        const roomCode = document.getElementById('room-code');
+        const roundNumber = document.getElementById('round-number');
+        const roundStatus = document.getElementById('round-status');
+        const startGameArea = document.getElementById('start-game-area');
+        const startGameBtn = document.getElementById('start-game-btn');
+        const guessArea = document.getElementById('guess-area');
+        const guessForm = document.getElementById('guess-form');
+        const guessInput = document.getElementById('guess-input');
+        const minNumSpan = document.getElementById('min-num');
+        const maxNumSpan = document.getElementById('max-num');
+        const roundResults = document.getElementById('round-results');
+        const targetNumber = document.getElementById('target-number');
+        const guessesList = document.getElementById('guesses-list');
+        const nextRoundBtn = document.getElementById('next-round-btn');
+        const playersContainer = document.getElementById('players-container');
+        const gameResults = document.getElementById('game-results');
+        const winnerAnnouncement = document.getElementById('winner-announcement');
+        const finalScores = document.getElementById('final-scores');
+        const backToLobbyBtn = document.getElementById('back-to-lobby-btn');
+        const connectionStatus = document.getElementById('connection-status');
+        const notification = document.getElementById('notification');
+        
+        // Initial setup on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+        });
+        
+        // Initialize the application
+        function initializeApp() {
+            // Load user data from localStorage
+            const storedUser = localStorage.getItem('numbrle_user');
+            const storedGuest = localStorage.getItem('guestNickname');
             
-            // Mock data for frontend demo
-            const isMyTurn = true;
-            const username = localStorage.getItem('guestNickname') || 'Player1';
-            
-            // Set up initial state
-            if (!isMyTurn) {
-                guessBtn.disabled = true;
-                guessInput.disabled = true;
-                guessInput.placeholder = "Waiting for other player's turn...";
+            if (storedUser) {
+                try {
+                    playerData = JSON.parse(storedUser);
+                } catch (e) {
+                    console.error('Error parsing user data', e);
+                    playerData = { username: 'Guest' };
+                }
+            } else if (storedGuest) {
+                playerData = { username: storedGuest };
+            } else {
+                // Generate random guest name if no user data
+                const guestId = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+                playerData = { username: `Guest_${guestId}` };
             }
             
-            // Handle guess submission
-            guessBtn.addEventListener('click', function() {
-                const guess = guessInput.value.trim();
+            // Try to connect to the WebSocket server
+            connectToServer();
+            
+            // Set up event listeners
+            setupEventListeners();
+        }
+        
+        // Connect to the WebSocket server
+        function connectToServer() {
+            // Show connecting status
+            setConnectionStatus('connecting');
+            
+            // Try to connect to local server first, fall back to remote
+            const serverUrl = window.location.hostname === 'localhost' 
+                ? 'ws://localhost:8765' 
+                : 'wss://nbguessing.glitch.me';
                 
-                if (!guess || isNaN(guess) || guess < 1 || guess > 100) {
-                    alert('Please enter a valid number between 1 and 100');
+            try {
+                socket = new WebSocket(serverUrl);
+                
+                // Set up event handlers
+                socket.onopen = handleSocketOpen;
+                socket.onmessage = handleSocketMessage;
+                socket.onclose = handleSocketClose;
+                socket.onerror = handleSocketError;
+            } catch (e) {
+                console.error('WebSocket connection error', e);
+                setConnectionStatus('disconnected');
+                showNotification('Failed to connect to game server', 'error');
+            }
+        }
+        
+        // Setup UI event listeners
+        function setupEventListeners() {
+            // Create room button
+            createRoomBtn.addEventListener('click', () => {
+                createRoomModal.style.display = 'flex';
+            });
+            
+            // Cancel create room
+            cancelCreateRoomBtn.addEventListener('click', () => {
+                createRoomModal.style.display = 'none';
+            });
+            
+            // Create room form submission
+            createRoomForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const maxPlayers = document.getElementById('max-players-input').value;
+                const rounds = document.getElementById('rounds-input').value;
+                const minNum = document.getElementById('min-number-input').value;
+                const maxNum = document.getElementById('max-number-input').value;
+                
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({
+                        action: 'create_room',
+                        max_players: maxPlayers,
+                        rounds: rounds,
+                        min_num: minNum,
+                        max_num: maxNum,
+                        player: playerData
+                    }));
+                    
+                    createRoomModal.style.display = 'none';
+                } else {
+                    showNotification('Server connection lost. Please refresh the page.', 'error');
+                }
+            });
+            
+            // Refresh rooms button
+            refreshRoomsBtn.addEventListener('click', () => {
+                fetchRooms();
+            });
+            
+            // Start game button
+            startGameBtn.addEventListener('click', () => {
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({
+                        action: 'start_game'
+                    }));
+                }
+            });
+            
+            // Guess form submission
+            guessForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                if (hasSubmittedGuess) {
+                    showNotification('You already submitted a guess for this round', 'info');
                     return;
                 }
                 
-                // In a real implementation, this would send the guess to the server
-                // For now, just add it to the history with a random result
-                const results = ['HIGHER', 'LOWER', 'CORRECT'];
-                const randomResult = results[Math.floor(Math.random() * (results.length - 1))]; // Exclude CORRECT for demo
+                const guess = guessInput.value;
                 
-                const resultClass = randomResult === 'HIGHER' ? 'result-higher' : 
-                                   randomResult === 'LOWER' ? 'result-lower' : 'result-correct';
-                
-                const historyEntry = document.createElement('div');
-                historyEntry.className = 'history-item';
-                historyEntry.innerHTML = `
-                    <span class="history-player">${username}:</span>
-                    <span class="history-guess">${guess}</span>
-                    <span class="history-result ${resultClass}">${randomResult}</span>
-                `;
-                
-                gameHistory.insertBefore(historyEntry, gameHistory.firstChild);
-                
-                // Clear input and disable for demo
-                guessInput.value = '';
-                guessBtn.disabled = true;
-                guessInput.disabled = true;
-                guessInput.placeholder = "Waiting for other player's turn...";
-                
-                // Simulate other player's turn after a delay
-                setTimeout(() => {
-                    // In a real implementation, this would be triggered by server events
-                    simulateOtherPlayerGuess();
-                }, 3000);
-            });
-            
-            // Simulate other player's guess
-            function simulateOtherPlayerGuess() {
-                const otherPlayer = 'Player2';
-                const randomGuess = Math.floor(Math.random() * 100) + 1;
-                const results = ['HIGHER', 'LOWER'];
-                const randomResult = results[Math.floor(Math.random() * results.length)];
-                
-                const resultClass = randomResult === 'HIGHER' ? 'result-higher' : 'result-lower';
-                
-                const historyEntry = document.createElement('div');
-                historyEntry.className = 'history-item';
-                historyEntry.innerHTML = `
-                    <span class="history-player">${otherPlayer}:</span>
-                    <span class="history-guess">${randomGuess}</span>
-                    <span class="history-result ${resultClass}">${randomResult}</span>
-                `;
-                
-                gameHistory.insertBefore(historyEntry, gameHistory.firstChild);
-                
-                // Re-enable input for demo
-                guessBtn.disabled = false;
-                guessInput.disabled = false;
-                guessInput.placeholder = "Enter your guess...";
-            }
-            
-            // Handle chat submission
-            sendBtn.addEventListener('click', sendChatMessage);
-            chatInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    sendChatMessage();
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({
+                        action: 'submit_guess',
+                        guess: guess
+                    }));
+                    
+                    hasSubmittedGuess = true;
+                    guessInput.disabled = true;
+                    guessForm.querySelector('button').disabled = true;
                 }
             });
             
-            function sendChatMessage() {
-                const messageText = chatInput.value.trim();
-                
-                if (!messageText) return;
-                
-                // Get current time
-                const now = new Date();
-                const hours = now.getHours();
-                const minutes = now.getMinutes();
-                const timeString = `${hours}:${minutes.toString().padStart(2, '0')} ${hours >= 12 ? 'PM' : 'AM'}`;
-                
-                // Create message element
-                const messageElement = document.createElement('div');
-                messageElement.className = 'message message-sender';
-                messageElement.innerHTML = `
-                    <div class="message-content">${messageText}</div>
-                    <div class="message-info">You • ${timeString}</div>
-                `;
-                
-                // Add to chat
-                chatMessages.appendChild(messageElement);
-                
-                // Clear input
-                chatInput.value = '';
-                
-                // Scroll to bottom
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-                
-                // In a real implementation, this would send the message to the server
-            }
-            
-            // Handle leave game button
-            leaveBtn.addEventListener('click', function() {
-                if (confirm('Are you sure you want to leave the game?')) {
-                    window.location.href = 'numberguess.html';
+            // Next round button
+            nextRoundBtn.addEventListener('click', () => {
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({
+                        action: 'next_round'
+                    }));
                 }
             });
-        });
+            
+            // Back to lobby button
+            backToLobbyBtn.addEventListener('click', () => {
+                leaveCurrentRoom();
+                showLobby();
+            });
+            
+            // Window unload/close events
+            window.addEventListener('beforeunload', () => {
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({
+                        action: 'leave_room'
+                    }));
+                }
+            });
+        }
+        
+        // WebSocket Event Handlers
+        function handleSocketOpen() {
+            setConnectionStatus('connected');
+            showNotification('Connected to game server', 'success');
+            
+            // After connection, fetch available rooms
+            fetchRooms();
+        }
+        
+        function handleSocketMessage(event) {
+            try {
+                const data = JSON.parse(event.data);
+                console.log('Received message:', data);
+                
+                // Handle different message types
+                switch (data.type) {
+                    case 'rooms_list':
+                        updateRoomsList(data.rooms);
+                        break;
+                        
+                    case 'room_created':
+                        currentRoom = data.room;
+                        playerId = currentRoom.players && Object.keys(currentRoom.players).find(
+                            pid => currentRoom.players[pid].username === playerData.username
+                        );
+                        joinRoom(currentRoom);
+                        break;
+                        
+                    case 'player_joined':
+                        if (currentRoom) {
+                            // Update current room data
+                            currentRoom = data.room;
+                            updatePlayersDisplay();
+                            
+                            // Show notification if not the current player
+                            if (data.player.id !== playerId) {
+                                showNotification(`${data.player.username} joined the room`, 'info');
+                            }
+                        }
+                        break;
+                        
+                    case 'player_left':
+                        if (currentRoom) {
+                            // Get the player who left before updating room data
+                            const playerLeftName = currentRoom.players[data.player_id]?.username || 'A player';
+                            
+                            // Update current room data
+                            currentRoom = data.room;
+                            updatePlayersDisplay();
+                            
+                            // Show notification
+                            showNotification(`${playerLeftName} left the room`, 'info');
+                        }
+                        break;
+                        
+                    case 'round_started':
+                        if (currentRoom) {
+                            currentRoom = data.room;
+                            startRound(data.round);
+                        }
+                        break;
+                        
+                    case 'guess_received':
+                        // Acknowledge that player's guess was received
+                        showNotification(`Your guess (${data.guess}) was submitted`, 'success');
+                        break;
+                        
+                    case 'round_ended':
+                        if (currentRoom) {
+                            // Update scores
+                            currentRoom.scores = data.scores;
+                            
+                            // Show round results
+                            showRoundResults(data.result, data.next_round);
+                        }
+                        break;
+                        
+                    case 'game_ended':
+                        if (currentRoom) {
+                            // Show final results
+                            showGameResults(data.winners, data.scores, data.rounds);
+                        }
+                        break;
+                        
+                    case 'error':
+                        showNotification(data.message, 'error');
+                        break;
+                }
+            } catch (e) {
+                console.error('Error processing message', e);
+                showNotification('Error processing server message', 'error');
+            }
+        }
+        
+        function handleSocketClose() {
+            setConnectionStatus('disconnected');
+            showNotification('Disconnected from game server', 'error');
+            
+            // Try to reconnect after a delay
+            setTimeout(() => {
+                if (!socket || socket.readyState !== WebSocket.OPEN) {
+                    showNotification('Attempting to reconnect...', 'info');
+                    connectToServer();
+                }
+            }, 3000);
+        }
+        
+        function handleSocketError(error) {
+            console.error('WebSocket error', error);
+            setConnectionStatus('disconnected');
+            showNotification('Connection error', 'error');
+        }
+        
+        // Game-related functions
+        function fetchRooms() {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({
+                    action: 'get_rooms'
+                }));
+            } else {
+                showNotification('Server connection lost. Please refresh the page.', 'error');
+            }
+        }
+        
+        function updateRoomsList(rooms) {
+            // Clear current rooms (except the message)
+            const nonRoomElements = roomList.querySelector('#no-rooms-message');
+            roomList.innerHTML = '';
+            
+            if (nonRoomElements) {
+                roomList.appendChild(nonRoomElements);
+            }
+            
+            // Show/hide no rooms message
+            if (rooms.length === 0) {
+                noRoomsMessage.style.display = 'block';
+                return;
+            } else {
+                noRoomsMessage.style.display = 'none';
+            }
+            
+            // Add each room
+            rooms.forEach(room => {
+                const roomElement = document.createElement('div');
+                roomElement.className = 'room-card';
+                roomElement.innerHTML = `
+                    <div class="room-id">ID: ${room.id.substring(0, 8)}...</div>
+                    <div class="room-details">
+                        <div class="room-players">Players: ${room.players}/${room.max_players}</div>
+                        <div class="room-rounds">Rounds: ${room.current_round}/${room.total_rounds}</div>
+                    </div>
+                    <button class="btn join-room-btn">Join Room</button>
+                `;
+                
+                // Add join event
+                const joinBtn = roomElement.querySelector('.join-room-btn');
+                joinBtn.addEventListener('click', () => {
+                    joinRoomById(room.id);
+                });
+                
+                roomList.appendChild(roomElement);
+            });
+        }
+        
+        function joinRoomById(roomId) {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({
+                    action: 'join_room',
+                    room_id: roomId,
+                    player: playerData
+                }));
+            } else {
+                showNotification('Server connection lost. Please refresh the page.', 'error');
+            }
+        }
+        
+        function joinRoom(room) {
+            currentRoom = room;
+            
+            // Update room display
+            roomCode.textContent = `CODE: ${room.id.substring(0, 6)}`;
+            roundNumber.textContent = `Round ${room.current_round} of ${room.total_rounds}`;
+            
+            if (room.round_active) {
+                roundStatus.textContent = 'Round in progress';
+                startGameArea.style.display = 'none';
+                guessArea.style.display = 'flex';
+            } else if (room.current_round === 0) {
+                roundStatus.textContent = 'Waiting for game to start';
+                startGameArea.style.display = 'block';
+                guessArea.style.display = 'none';
+            } else {
+                roundStatus.textContent = 'Waiting for next round';
+                startGameArea.style.display = 'none';
+                guessArea.style.display = 'none';
+            }
+            
+            // Update number range
+            minNumSpan.textContent = room.min_num;
+            maxNumSpan.textContent = room.max_num;
+            guessInput.min = room.min_num;
+            guessInput.max = room.max_num;
+            
+            // Update players
+            updatePlayersDisplay();
+            
+            // Show game room, hide lobby
+            lobbySection.style.display = 'none';
+            gameRoom.style.display = 'flex';
+            roundResults.style.display = 'none';
+            gameResults.style.display = 'none';
+        }
+        
+        function updatePlayersDisplay() {
+            if (!currentRoom || !currentRoom.players) return;
+            
+            playersContainer.innerHTML = '';
+            
+            // Get array of players sorted by score
+            const playersArray = Object.entries(currentRoom.players).map(([id, data]) => {
+                return {
+                    id: id,
+                    ...data,
+                    score: currentRoom.scores[id] || 0
+                };
+            }).sort((a, b) => b.score - a.score);
+            
+            // Create player elements
+            playersArray.forEach(player => {
+                const playerElement = document.createElement('div');
+                playerElement.className = 'player-item';
+                
+                // Highlight current player
+                if (player.id === playerId) {
+                    playerElement.style.backgroundColor = 'rgba(245, 179, 1, 0.1)';
+                }
+                
+                playerElement.innerHTML = `
+                    <div class="player-avatar">
+                        ${player.avatar 
+                            ? `<img src="${player.avatar}" alt="Avatar">` 
+                            : player.username.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="player-info">
+                        <div class="player-name">${player.username}${player.id === playerId ? ' (You)' : ''}</div>
+                        <div class="player-score">Score: ${player.score}</div>
+                    </div>
+                `;
+                
+                playersContainer.appendChild(playerElement);
+            });
+            
+            // Enable/disable start game button
+            if (Object.keys(currentRoom.players).length >= 2 && currentRoom.current_round === 0) {
+                startGameBtn.disabled = false;
+            } else {
+                startGameBtn.disabled = true;
+            }
+        }
+        
+        function startRound(roundNum) {
+            // Reset round state
+            hasSubmittedGuess = false;
+            guessInput.disabled = false;
+            guessInput.value = '';
+            guessForm.querySelector('button').disabled = false;
+            
+            // Update UI
+            roundNumber.textContent = `Round ${roundNum} of ${currentRoom.total_rounds}`;
+            roundStatus.textContent = 'Make your guess!';
+            startGameArea.style.display = 'none';
+            guessArea.style.display = 'flex';
+            roundResults.style.display = 'none';
+            
+            showNotification(`Round ${roundNum} started!`, 'info');
+        }
+        
+        function showRoundResults(result, hasNextRound) {
+            // Update target number display
+            targetNumber.textContent = result.target_number;
+            
+            // Clear and update guesses list
+            guessesList.innerHTML = '';
+            
+            // Get array of guesses with player info
+            const guessesArray = Object.entries(result.guesses).map(([playerId, guess]) => {
+                return {
+                    playerId,
+                    playerName: currentRoom.players[playerId]?.username || 'Unknown',
+                    guess,
+                    difference: result.differences[playerId],
+                    isWinner: playerId === result.winner,
+                    isCurrentPlayer: playerId === this.playerId
+                };
+            }).sort((a, b) => a.difference - b.difference); // Sort by closest guess
+            
+            // Create guess elements
+            guessesArray.forEach(guessData => {
+                const guessElement = document.createElement('div');
+                guessElement.className = 'guess-item';
+                
+                if (guessData.isCurrentPlayer) {
+                    guessElement.style.backgroundColor = 'rgba(245, 179, 1, 0.1)';
+                }
+                
+                guessElement.innerHTML = `
+                    <div style="flex: 1;">
+                        <strong>${guessData.playerName}${guessData.isCurrentPlayer ? ' (You)' : ''}</strong>: ${guessData.guess}
+                        <span style="color: #888; margin-left: 5px;">(${guessData.difference} away)</span>
+                    </div>
+                    ${guessData.isWinner ? '<div class="winner-badge">Winner</div>' : ''}
+                `;
+                
+                guessesList.appendChild(guessElement);
+            });
+            
+            // Show/hide next round button
+            nextRoundBtn.style.display = hasNextRound ? 'block' : 'none';
+            
+            // Show results section
+            roundResults.style.display = 'block';
+            guessArea.style.display = 'none';
+            
+            // Show notification
+            const winnerName = result.winner ? currentRoom.players[result.winner]?.username : 'No one';
+            showNotification(`Round ended! ${winnerName} won this round!`, 'success');
+        }
+        
+        function showGameResults(winners, scores, rounds) {
+            // Create winner text
+            let winnerText = '';
+            if (winners.length === 1) {
+                winnerText = `${currentRoom.players[winners[0]]?.username || 'Unknown'} wins the game!`;
+            } else if (winners.length > 1) {
+                const winnerNames = winners.map(id => currentRoom.players[id]?.username || 'Unknown').join(' and ');
+                winnerText = `It's a tie! ${winnerNames} win the game!`;
+            }
+            
+            winnerAnnouncement.textContent = winnerText;
+            
+            // Clear and update final scores
+            finalScores.innerHTML = '';
+            
+            // Get array of players sorted by score
+            const playersArray = Object.entries(currentRoom.players).map(([id, data]) => {
+                return {
+                    id,
+                    username: data.username,
+                    score: scores[id] || 0,
+                    isWinner: winners.includes(id),
+                    isCurrentPlayer: id === this.playerId
+                };
+            }).sort((a, b) => b.score - a.score);
+            
+            // Create player score elements
+            playersArray.forEach(player => {
+                const scoreElement = document.createElement('div');
+                scoreElement.className = `final-score-item${player.isWinner ? ' winner-item' : ''}`;
+                
+                if (player.isCurrentPlayer) {
+                    scoreElement.style.backgroundColor = 'rgba(245, 179, 1, 0.1)';
+                }
+                
+                scoreElement.innerHTML = `
+                    <div class="final-player-name">${player.username}${player.isCurrentPlayer ? ' (You)' : ''}</div>
+                    <div class="final-player-score">${player.score}</div>
+                `;
+                
+                finalScores.appendChild(scoreElement);
+            });
+            
+            // Show game results section
+            gameResults.style.display = 'flex';
+            roundResults.style.display = 'none';
+            
+            // Show notification
+            showNotification('Game over! Check the final results.', 'info');
+        }
+        
+        function leaveCurrentRoom() {
+            if (socket && socket.readyState === WebSocket.OPEN && currentRoom) {
+                socket.send(JSON.stringify({
+                    action: 'leave_room'
+                }));
+                
+                currentRoom = null;
+                hasSubmittedGuess = false;
+            }
+        }
+        
+        function showLobby() {
+            lobbySection.style.display = 'flex';
+            gameRoom.style.display = 'none';
+            fetchRooms();
+        }
+        
+        // Utility functions
+        function setConnectionStatus(status) {
+            connectionStatus.className = `connection-status status-${status}`;
+            
+            switch (status) {
+                case 'connected':
+                    connectionStatus.textContent = 'Connected';
+                    break;
+                case 'disconnected':
+                    connectionStatus.textContent = 'Disconnected';
+                    break;
+                case 'connecting':
+                    connectionStatus.textContent = 'Connecting...';
+                    break;
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            // Hide notification after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
     </script>
 </body>
 </html>

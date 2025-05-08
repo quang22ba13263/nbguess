@@ -183,6 +183,86 @@
             color: #121213;
         }
         
+        /* Thêm CSS cho phần user profile */
+        .user-profile {
+            display: none; /* Ẩn mặc định, hiển thị khi đã đăng nhập */
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            border: 2px solid #f5b301;
+            overflow: hidden;
+            background-color: #333;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-info {
+            margin-bottom: 15px;
+        }
+        
+        .user-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #f5b301;
+            margin-bottom: 5px;
+        }
+        
+        .user-email {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        .user-stats {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-item {
+            background-color: #1a1a1b;
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: 1px solid #333;
+        }
+        
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #f5b301;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+        
+        .logout-btn {
+            background-color: transparent;
+            border: 1px solid #f5b301;
+            color: #f5b301;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background-color: #f5b301;
+            color: #121213;
+        }
+        
         footer {
             padding: 20px;
             text-align: center;
@@ -218,6 +298,32 @@
                 Whether you prefer to solve number puzzles like Wordle or compete with others in real-time, 
                 we've got you covered!
             </p>
+        </div>
+        
+        <!-- User Profile Section (hiển thị khi đã đăng nhập) -->
+        <div class="user-profile" id="user-profile">
+            <div class="user-avatar">
+                <img id="user-avatar-img" src="https://via.placeholder.com/60" alt="User Avatar">
+            </div>
+            <div class="user-info">
+                <div class="user-name" id="user-name">Username</div>
+                <div class="user-email" id="user-email">user@example.com</div>
+            </div>
+            <div class="user-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="games-played">0</div>
+                    <div class="stat-label">Games</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="games-won">0</div>
+                    <div class="stat-label">Wins</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="high-score">0</div>
+                    <div class="stat-label">High Score</div>
+                </div>
+            </div>
+            <button class="logout-btn" id="logout-btn">Logout</button>
         </div>
         
         <div class="game-modes">
@@ -280,7 +386,7 @@
             </div>
         </div>
         
-        <div class="account-actions">
+        <div class="account-actions" id="account-actions">
             <h3 class="account-title">Ready to Play?</h3>
             <div class="buttons-container">
                 <a href="login.html" class="btn">LOGIN</a>
@@ -292,5 +398,132 @@
     <footer>
         <p>© 2023 NUMBRLE - The Ultimate Number Guessing Game</p>
     </footer>
+
+    <script>
+        // API endpoint
+        const API_BASE_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3000/api' 
+            : 'https://nbguessing.glitch.me/api';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Kiểm tra nếu người dùng đã đăng nhập
+            checkUserLoggedIn();
+            
+            // Xử lý đăng xuất
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                localStorage.removeItem('numbrle_user');
+                localStorage.removeItem('numbrle_token');
+                location.reload(); // Tải lại trang
+            });
+        });
+        
+        // Kiểm tra trạng thái đăng nhập
+        function checkUserLoggedIn() {
+            const token = localStorage.getItem('numbrle_token');
+            const userData = localStorage.getItem('numbrle_user');
+            
+            if (token && userData) {
+                try {
+                    // Lấy dữ liệu người dùng từ localStorage
+                    const user = JSON.parse(userData);
+                    
+                    // Kiểm tra token với server
+                    fetch(`${API_BASE_URL}/auth/verify`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            throw new Error('Invalid token');
+                        }
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Token hợp lệ, hiển thị thông tin người dùng
+                            displayUserProfile(user);
+                            fetchUserProfile(token); // Lấy thông tin người dùng cập nhật từ server
+                        } else {
+                            // Token không hợp lệ, xóa dữ liệu và hiển thị trang đăng nhập
+                            clearUserData();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Token verification error:', error);
+                        clearUserData();
+                    });
+                } catch (error) {
+                    console.error('Parse user data error:', error);
+                    clearUserData();
+                }
+            }
+        }
+        
+        // Hiển thị thông tin người dùng
+        function displayUserProfile(user) {
+            // Ẩn phần đăng nhập/đăng ký
+            document.getElementById('account-actions').style.display = 'none';
+            
+            // Hiển thị phần thông tin người dùng
+            const userProfile = document.getElementById('user-profile');
+            userProfile.style.display = 'block';
+            
+            // Cập nhật thông tin
+            document.getElementById('user-name').textContent = user.username || 'User';
+            document.getElementById('user-email').textContent = user.email || '';
+            
+            // Cập nhật ảnh đại diện nếu có
+            if (user.profilePicture) {
+                document.getElementById('user-avatar-img').src = user.profilePicture;
+            }
+            
+            // Cập nhật thống kê người dùng nếu có
+            if (user.stats) {
+                document.getElementById('games-played').textContent = user.stats.gamesPlayed || 0;
+                document.getElementById('games-won').textContent = user.stats.gamesWon || 0;
+                document.getElementById('high-score').textContent = user.stats.highScore || 0;
+            }
+        }
+        
+        // Lấy thông tin người dùng cập nhật từ server
+        function fetchUserProfile(token) {
+            fetch(`${API_BASE_URL}/users/profile`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Failed to fetch user profile');
+                }
+            })
+            .then(data => {
+                if (data.success && data.user) {
+                    // Cập nhật localStorage với dữ liệu mới nhất
+                    localStorage.setItem('numbrle_user', JSON.stringify(data.user));
+                    
+                    // Hiển thị thông tin người dùng
+                    displayUserProfile(data.user);
+                }
+            })
+            .catch(error => {
+                console.error('Fetch user profile error:', error);
+            });
+        }
+        
+        // Xóa dữ liệu người dùng
+        function clearUserData() {
+            localStorage.removeItem('numbrle_user');
+            localStorage.removeItem('numbrle_token');
+            document.getElementById('account-actions').style.display = 'block';
+            document.getElementById('user-profile').style.display = 'none';
+        }
+    </script>
 </body>
 </html> 

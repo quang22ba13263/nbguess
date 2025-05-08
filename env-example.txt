@@ -1,0 +1,10 @@
+# Cách 1: Dùng chuỗi kết nối đầy đủ
+MONGODB_URI=mongodb+srv://quan9bright:24062004@nbguess.m5jq0pt.mongodb.net/?retryWrites=true&w=majority&appName=nbguess
+
+# HOẶC Cách 2: Chia thành các thành phần riêng biệt (an toàn hơn)
+MONGODB_USER=quan9bright
+MONGODB_PASSWORD=24062004
+MONGODB_CLUSTER=nbguess.m5jq0pt.mongodb.net
+
+# JWT Secret
+JWT_SECRET=numbrle_jwt_secret_key 

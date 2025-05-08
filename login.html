@@ -392,7 +392,7 @@
         // API endpoint for user management (Glitch backend)
         const API_BASE_URL = window.location.hostname === 'localhost' 
             ? 'http://localhost:3000/api' 
-            : 'https://nbguessing.glitch.me/';
+            : 'https://nbguessing.glitch.me/api';
             
         // DOM elements
         const loginTab = document.getElementById('login-tab');
@@ -510,18 +510,83 @@
             });
         });
         
+        // Check if user is already logged in
+        function checkAuthStatus() {
+            console.log("Checking auth status...");
+            const token = localStorage.getItem('numbrle_token');
+            
+            // Nếu không có token, không cần kiểm tra thêm
+            if (!token) {
+                console.log("No token found in localStorage");
+                return;
+            }
+            
+            console.log("Token found, verifying...");
+            
+            // Verify token with the backend with a timeout to prevent blocking UI
+            fetch(`${API_BASE_URL}/auth/verify`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Token verification failed');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    console.log("Token is valid, redirecting...");
+                    // Token is valid, redirect to home page
+                    window.location.href = 'numberguess.html';
+                } else {
+                    console.log("Token is invalid, clearing localStorage");
+                    // Token is invalid, clear localStorage
+                    localStorage.removeItem('numbrle_user');
+                    localStorage.removeItem('numbrle_token');
+                }
+            })
+            .catch(error => {
+                console.error('Auth verification error:', error);
+                localStorage.removeItem('numbrle_user');
+                localStorage.removeItem('numbrle_token');
+            });
+        }
+        
         // Initialize Google OAuth
         function initGoogleOAuth() {
-            google.accounts.id.initialize({
-                client_id: CLIENT_ID,
-                callback: handleGoogleCredentialResponse
-            });
+            console.log("Initializing Google OAuth...");
+            
+            try {
+                google.accounts.id.initialize({
+                    client_id: CLIENT_ID,
+                    callback: handleGoogleCredentialResponse,
+                    auto_select: false, // Ngăn tự động chọn tài khoản
+                    cancel_on_tap_outside: true // Cho phép hủy nếu nhấn ra ngoài
+                });
+                
+                // Tạo nút đăng nhập Google (chỉ hiển thị khi nhấp vào nút)
+                // Không tự động hiển thị hộp thoại đăng nhập
+                google.accounts.id.renderButton(
+                    document.getElementById('google-login-container'), 
+                    { theme: 'filled_black', size: 'large', width: '100%' }
+                );
+                
+                console.log("Google OAuth initialized successfully");
+            } catch (error) {
+                console.error("Google OAuth initialization error:", error);
+            }
         }
         
         // Handle Google OAuth response
         function handleGoogleCredentialResponse(response) {
+            console.log("Received Google credential response");
             // Send the token to your backend
             const id_token = response.credential;
+            
+            showSuccessMessage('Google authentication in progress...');
             
             fetch(`${API_BASE_URL}/auth/google`, {
                 method: 'POST',
@@ -555,14 +620,14 @@
         // Google sign in button click handlers
         googleLoginBtn.addEventListener('click', () => {
             clearMessages();
-            // Use Google's OAuth popup for login
-            google.accounts.id.prompt();
+            // Thay vì dùng prompt() tự động, chúng ta hiển thị nút đăng nhập Google
+            document.getElementById('google-login-container').style.display = 'block';
         });
         
         googleRegisterBtn.addEventListener('click', () => {
             clearMessages();
-            // Use Google's OAuth popup for registration
-            google.accounts.id.prompt();
+            // Thay vì dùng prompt() tự động, chúng ta hiển thị nút đăng nhập Google
+            document.getElementById('google-login-container').style.display = 'block';
         });
         
         // Forgot password
@@ -616,40 +681,43 @@
             authSuccess.style.display = 'none';
         }
         
-        // Check if user is already logged in
-        function checkAuthStatus() {
-            const token = localStorage.getItem('numbrle_token');
-            if (token) {
-                // Verify token with the backend
-                fetch(`${API_BASE_URL}/auth/verify`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Token is valid, redirect to home page
-                        window.location.href = 'numberguess.html';
-                    } else {
-                        // Token is invalid, clear localStorage
-                        localStorage.removeItem('numbrle_user');
-                        localStorage.removeItem('numbrle_token');
-                    }
-                })
-                .catch(error => {
-                    console.error('Auth verification error:', error);
-                    localStorage.removeItem('numbrle_user');
-                    localStorage.removeItem('numbrle_token');
-                });
-            }
-        }
-        
         // Initialize the page
         window.onload = function() {
+            console.log("Page loaded");
+            
+            // Thêm container cho nút Google đăng nhập
+            if (!document.getElementById('google-login-container')) {
+                const container = document.createElement('div');
+                container.id = 'google-login-container';
+                container.style.display = 'none';
+                container.style.marginTop = '10px';
+                
+                // Chèn container vào sau nút Google Login
+                googleLoginBtn.parentNode.appendChild(container);
+            }
+            
+            // Chỉ khởi tạo OAuth, không tự động kiểm tra trạng thái
             initGoogleOAuth();
-            checkAuthStatus();
+            
+            // Thêm một nút trên giao diện để chủ động kiểm tra trạng thái đăng nhập
+            // (chỉ dùng cho kiểm tra debug, có thể xóa sau khi đã ổn định)
+            const debugContainer = document.createElement('div');
+            debugContainer.style.marginTop = '20px';
+            debugContainer.style.textAlign = 'center';
+            debugContainer.style.fontSize = '0.8rem';
+            
+            const checkButton = document.createElement('button');
+            checkButton.textContent = 'Đã có tài khoản? Tự động đăng nhập';
+            checkButton.style.background = 'transparent';
+            checkButton.style.border = 'none';
+            checkButton.style.color = '#f5b301';
+            checkButton.style.cursor = 'pointer';
+            checkButton.style.textDecoration = 'underline';
+            
+            checkButton.addEventListener('click', checkAuthStatus);
+            
+            debugContainer.appendChild(checkButton);
+            document.querySelector('.auth-container').appendChild(debugContainer);
         };
     </script>
 </body>

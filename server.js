@@ -5,6 +5,7 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
+const path = require('path');
 
 // Initialize Express app
 const app = express();
@@ -15,20 +16,81 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static files
+app.use(express.static(__dirname));
+
 // Google OAuth client
 const googleClient = new OAuth2Client('473131258076-ulg0nmfmoltc6rrapuo2pcrl6piutkub.apps.googleusercontent.com');
 
 // Environment variables - Replace with your actual values in production
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/numbrle';
 
-// MongoDB Connection
-mongoose.connect(MONGODB_URI, { 
+// Tạo URI MongoDB từ các thành phần riêng biệt nếu người dùng chia nhỏ biến môi trường
+let MONGODB_URI;
+if (process.env.MONGODB_USER && process.env.MONGODB_PASSWORD && process.env.MONGODB_CLUSTER) {
+    MONGODB_URI = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_CLUSTER}/?retryWrites=true&w=majority&appName=nbguess`;
+} else {
+    MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/numbrle';
+}
+
+// Thêm log để debug
+console.log('MongoDB URI configuration:');
+console.log('URI defined:', MONGODB_URI ? 'Yes' : 'No');
+if (MONGODB_URI) {
+    // Hiển thị URI an toàn (không hiện mật khẩu)
+    const sanitizedURI = MONGODB_URI.replace(/\/\/([^:]+):([^@]+)@/, '//***:***@');
+    console.log('Sanitized URI:', sanitizedURI);
+}
+
+// Cập nhật các tùy chọn kết nối MongoDB
+const mongooseOptions = {
     useNewUrlParser: true, 
-    useUnifiedTopology: true 
-})
-.then(() => console.log('MongoDB connected successfully'))
-.catch(err => console.error('MongoDB connection error:', err));
+    useUnifiedTopology: true,
+    connectTimeoutMS: 30000,
+    socketTimeoutMS: 45000,
+    serverSelectionTimeoutMS: 60000,
+    heartbeatFrequencyMS: 30000,
+    retryWrites: true,
+    w: 'majority',
+    family: 4  // Chỉ định IPv4 để tránh vấn đề IPv6
+};
+
+// Health check route for testing
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        status: 'Server is running', 
+        mongoConnection: mongoose.connection.readyState === 1,
+        mongodbURI: MONGODB_URI ? 'URI is defined' : 'URI is missing',
+        nodeEnv: process.env.NODE_ENV || 'development'
+    });
+});
+
+// Thiết lập kết nối MongoDB riêng biệt
+async function connectToMongoDB() {
+    try {
+        await mongoose.connect(MONGODB_URI, mongooseOptions);
+        console.log('MongoDB connected successfully');
+        return true;
+    } catch (err) {
+        console.error('MongoDB connection error details:', err);
+        // Hiển thị thông tin chi tiết lỗi
+        if (err.name === 'MongoServerSelectionError') {
+            console.error('Cannot connect to MongoDB server. Please check:');
+            console.error('1. Network access/whitelist settings in MongoDB Atlas');
+            console.error('2. Username and password are correct');
+            console.error('3. Database cluster name is correct');
+            console.error('Error details:', err.message);
+        }
+        return false;
+    }
+}
+
+// Gọi hàm kết nối
+connectToMongoDB().then(success => {
+    if (!success) {
+        console.log('Warning: Server running without MongoDB connection');
+    }
+});
 
 // User Schema
 const userSchema = new mongoose.Schema({
@@ -92,6 +154,11 @@ const verifyToken = (req, res, next) => {
         });
     }
 };
+
+// ROOT ROUTE - Serve the homepage
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'numberguess.html'));
+});
 
 // Routes
 // Register new user
@@ -327,6 +394,18 @@ app.put('/api/users/stats', verifyToken, async (req, res) => {
             success: false, 
             message: 'Server error while updating stats.' 
         });
+    }
+});
+
+// Route to handle all other page requests - serve the appropriate HTML files
+app.get('/:page.html', (req, res) => {
+    const page = req.params.page;
+    const validPages = ['numberguess', 'login', 'guest', 'numble', 'multiplayer'];
+    
+    if (validPages.includes(page)) {
+        res.sendFile(path.join(__dirname, `${page}.html`));
+    } else {
+        res.status(404).send('Page not found');
     }
 });
 
