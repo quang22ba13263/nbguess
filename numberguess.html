@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUMBRLE - The Ultimate Number Guessing Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: #121213;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        header {
+            padding: 20px 0;
+            text-align: center;
+            border-bottom: 1px solid #3a3a3c;
+        }
+        
+        .logo {
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #f5b301;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            color: #888;
+        }
+        
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .game-description {
+            max-width: 800px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .description-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #f5b301;
+        }
+        
+        .description-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+        
+        .game-modes {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            width: 100%;
+            max-width: 900px;
+            flex-wrap: wrap;
+        }
+        
+        .game-card {
+            background-color: #1a1a1b;
+            border-radius: 8px;
+            padding: 30px;
+            width: 400px;
+            max-width: 100%;
+            border: 1px solid #333;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .game-card:hover {
+            transform: translateY(-5px);
+            border-color: #f5b301;
+        }
+        
+        .card-icon {
+            font-size: 2.5rem;
+            color: #f5b301;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #f5b301;
+        }
+        
+        .card-description {
+            color: #aaa;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+        
+        .card-features {
+            margin-bottom: 25px;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #ccc;
+        }
+        
+        .feature-icon {
+            color: #f5b301;
+            margin-right: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .btn {
+            background-color: #f5b301;
+            color: #121213;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: inline-block;
+            text-decoration: none;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background-color: #ffcc33;
+            transform: translateY(-2px);
+        }
+        
+        .account-actions {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .account-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #f5b301;
+        }
+        
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid #f5b301;
+            color: #f5b301;
+        }
+        
+        .btn-outline:hover {
+            background-color: #f5b301;
+            color: #121213;
+        }
+        
+        footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+            border-top: 1px solid #3a3a3c;
+        }
+        
+        @media (max-width: 850px) {
+            .game-modes {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .game-card {
+                width: 100%;
+                max-width: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">NUMBRLE</div>
+        <div class="tagline">The Ultimate Number Guessing Game</div>
+    </header>
+    
+    <main>
+        <div class="game-description">
+            <h2 class="description-title">Challenge Your Number Intuition</h2>
+            <p class="description-text">
+                NUMBRLE offers two exciting game modes to test your number guessing skills. 
+                Whether you prefer to solve number puzzles like Wordle or compete with others in real-time, 
+                we've got you covered!
+            </p>
+        </div>
+        
+        <div class="game-modes">
+            <div class="game-card">
+                <div class="card-icon">
+                    <i class="fas fa-hashtag"></i>
+                </div>
+                <h3 class="card-title">NUMBLE MODE</h3>
+                <p class="card-description">
+                    Similar to Wordle but with numbers! Guess the secret 5-digit number with clever deduction and color-coded feedback.
+                </p>
+                <div class="card-features">
+                    <div class="feature-item">
+                        <span class="feature-icon"><i class="fas fa-check-circle"></i></span>
+                        <span>Green: Correct digit in correct position</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon"><i class="fas fa-check-circle"></i></span>
+                        <span>Yellow: Correct digit in wrong position</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon"><i class="fas fa-check-circle"></i></span>
+                        <span>Gray: Wrong digit</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon"><i class="fas fa-check-circle"></i></span>
+                        <span>5 attempts to crack the code</span>
+                    </div>
+                </div>
+                <a href="numble.html" class="btn">PLAY NUMBLE</a>
+            </div>
+            
+            <div class="game-card">
+                <div class="card-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="card-title">MULTIPLAYER MODE</h3>
+                <p class="card-description">
+                    Compete with friends or random players to guess a number between 1-100. The closest guess wins the round!
+                </p>
+                <div class="card-features">
+                    <div class="feature-item">
+                        <span class="feature-icon"><i class="fas fa-check-circle"></i></span>
+                        <span>Real-time competition</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon"><i class="fas fa-check-circle"></i></span>
+                        <span>Leaderboard tracking</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon"><i class="fas fa-check-circle"></i></span>
+                        <span>Higher/Lower hints</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon"><i class="fas fa-check-circle"></i></span>
+                        <span>Multiple rounds</span>
+                    </div>
+                </div>
+                <a href="multiplayer.html" class="btn">PLAY MULTIPLAYER</a>
+            </div>
+        </div>
+        
+        <div class="account-actions">
+            <h3 class="account-title">Ready to Play?</h3>
+            <div class="buttons-container">
+                <a href="login.html" class="btn">LOGIN</a>
+                <a href="guest.html" class="btn btn-outline">PLAY AS GUEST</a>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>© 2023 NUMBRLE - The Ultimate Number Guessing Game</p>
+    </footer>
+</body>
+</html> 

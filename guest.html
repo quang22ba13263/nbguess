@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guest Play - NUMBRLE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: #121213;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        header {
+            padding: 15px 0;
+            text-align: center;
+            border-bottom: 1px solid #3a3a3c;
+            position: relative;
+        }
+        
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #f5b301;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .logo {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #f5b301;
+            margin-bottom: 5px;
+        }
+        
+        .tagline {
+            font-size: 1rem;
+            color: #888;
+        }
+        
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .guest-container {
+            background-color: #1a1a1b;
+            border-radius: 8px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid #333;
+            text-align: center;
+        }
+        
+        .guest-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #f5b301;
+        }
+        
+        .guest-description {
+            margin-bottom: 25px;
+            color: #aaa;
+            line-height: 1.6;
+        }
+        
+        .guest-note {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #888;
+            padding: 15px;
+            background-color: rgba(245, 179, 1, 0.1);
+            border-radius: 4px;
+            border-left: 3px solid #f5b301;
+        }
+        
+        .nickname-form {
+            margin-bottom: 25px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #aaa;
+            text-align: left;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            background-color: #2a2a2b;
+            color: #fff;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #f5b301;
+        }
+        
+        .btn {
+            background-color: #f5b301;
+            color: #121213;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: inline-block;
+            text-decoration: none;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        .btn:hover {
+            background-color: #ffcc33;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid #f5b301;
+            color: #f5b301;
+        }
+        
+        .btn-outline:hover {
+            background-color: #f5b301;
+            color: #121213;
+        }
+        
+        .mode-selection {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .mode-card {
+            background-color: #212122;
+            border-radius: 6px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+        
+        .mode-card:hover {
+            border-color: #f5b301;
+            transform: translateY(-3px);
+        }
+        
+        .mode-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(245, 179, 1, 0.1);
+            border-radius: 50%;
+            margin-right: 15px;
+            color: #f5b301;
+            font-size: 1.5rem;
+        }
+        
+        .mode-info {
+            flex: 1;
+        }
+        
+        .mode-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #f5b301;
+        }
+        
+        .mode-description {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+        
+        .login-option {
+            margin-top: 30px;
+        }
+        
+        .login-text {
+            color: #aaa;
+            margin-bottom: 15px;
+        }
+        
+        footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #666;
+            border-top: 1px solid #3a3a3c;
+        }
+        
+        @media (max-width: 550px) {
+            .guest-container {
+                padding: 20px;
+            }
+            
+            .mode-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .mode-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="numberguess.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div class="logo">NUMBRLE</div>
+        <div class="tagline">Guest Play</div>
+    </header>
+    
+    <main>
+        <div class="guest-container">
+            <h2 class="guest-title">Play as Guest</h2>
+            
+            <p class="guest-description">
+                You can play NUMBRLE without creating an account. Just choose a nickname and start playing right away!
+            </p>
+            
+            <form class="nickname-form" id="nicknameForm">
+                <div class="input-group">
+                    <label for="nickname">Choose a Nickname</label>
+                    <input type="text" id="nickname" name="nickname" placeholder="Enter a nickname" required>
+                </div>
+            </form>
+            
+            <p class="guest-note">
+                <i class="fas fa-info-circle"></i> Note: Your scores and progress won't be saved. Create an account later to save your statistics!
+            </p>
+            
+            <div class="mode-selection">
+                <h3 style="margin-bottom: 10px;">Select Game Mode</h3>
+                
+                <div class="mode-card" id="numbleMode">
+                    <div class="mode-icon">
+                        <i class="fas fa-hashtag"></i>
+                    </div>
+                    <div class="mode-info">
+                        <div class="mode-title">NUMBLE MODE</div>
+                        <div class="mode-description">Guess the 5-digit number in 5 tries with color hints</div>
+                    </div>
+                </div>
+                
+                <div class="mode-card" id="multiplayerMode">
+                    <div class="mode-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="mode-info">
+                        <div class="mode-title">MULTIPLAYER MODE</div>
+                        <div class="mode-description">Compete with others to guess a number between 1-100</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="login-option">
+                <p class="login-text">Changed your mind?</p>
+                <a href="login.html" class="btn btn-outline">LOGIN / REGISTER</a>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>© 2023 NUMBRLE - The Ultimate Number Guessing Game</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const nicknameForm = document.getElementById('nicknameForm');
+            const nicknameInput = document.getElementById('nickname');
+            const numbleMode = document.getElementById('numbleMode');
+            const multiplayerMode = document.getElementById('multiplayerMode');
+            
+            // Generate a random guest nickname
+            const randomNickname = 'Guest' + Math.floor(Math.random() * 10000);
+            nicknameInput.value = randomNickname;
+            
+            // Handle Numble Mode selection
+            numbleMode.addEventListener('click', function() {
+                if (!nicknameInput.value.trim()) {
+                    alert('Please enter a nickname first!');
+                    nicknameInput.focus();
+                    return;
+                }
+                
+                // Store the guest nickname in localStorage
+                localStorage.setItem('guestNickname', nicknameInput.value.trim());
+                localStorage.setItem('isGuest', 'true');
+                
+                // Redirect to Numble game page
+                window.location.href = 'numble.html';
+            });
+            
+            // Handle Multiplayer Mode selection
+            multiplayerMode.addEventListener('click', function() {
+                if (!nicknameInput.value.trim()) {
+                    alert('Please enter a nickname first!');
+                    nicknameInput.focus();
+                    return;
+                }
+                
+                // Store the guest nickname in localStorage
+                localStorage.setItem('guestNickname', nicknameInput.value.trim());
+                localStorage.setItem('isGuest', 'true');
+                
+                // Redirect to Multiplayer game page
+                window.location.href = 'multiplayer.html';
+            });
+            
+            // Prevent form submission
+            nicknameForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+            });
+        });
+    </script>
+</body>
+</html> 

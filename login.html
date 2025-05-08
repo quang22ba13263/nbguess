@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - NUMBRLE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: #121213;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        header {
+            padding: 15px 0;
+            text-align: center;
+            border-bottom: 1px solid #3a3a3c;
+            position: relative;
+        }
+        
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #f5b301;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .logo {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #f5b301;
+            margin-bottom: 5px;
+        }
+        
+        .tagline {
+            font-size: 1rem;
+            color: #888;
+        }
+        
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .auth-container {
+            background-color: #1a1a1b;
+            border-radius: 8px;
+            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid #333;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #888;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            color: #f5b301;
+            border-bottom: 2px solid #f5b301;
+        }
+        
+        .tab:hover {
+            color: #f5b301;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            background-color: #2a2a2b;
+            color: #fff;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #f5b301;
+        }
+        
+        .btn {
+            background-color: #f5b301;
+            color: #121213;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: inline-block;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            background-color: #ffcc33;
+            transform: translateY(-2px);
+        }
+        
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        
+        .forgot-password a {
+            color: #888;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .forgot-password a:hover {
+            color: #f5b301;
+        }
+        
+        .or-divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: #666;
+        }
+        
+        .or-divider::before,
+        .or-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: #333;
+        }
+        
+        .or-divider span {
+            padding: 0 15px;
+            font-size: 0.9rem;
+        }
+        
+        .social-login {
+            margin-bottom: 25px;
+        }
+        
+        .social-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 12px;
+            border-radius: 4px;
+            background-color: #2a2a2b;
+            border: 1px solid #333;
+            color: #fff;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+        
+        .social-btn:last-child {
+            margin-bottom: 0;
+        }
+        
+        .social-btn:hover {
+            background-color: #333;
+            transform: translateY(-2px);
+        }
+        
+        .social-btn i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .google-btn {
+            background-color: #2a2a2b;
+            color: #fff;
+        }
+        
+        .google-btn i {
+            color: #DB4437;
+        }
+        
+        .guest-option {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+        }
+        
+        .guest-text {
+            color: #888;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .guest-btn {
+            background-color: transparent;
+            border: 2px solid #f5b301;
+            color: #f5b301;
+        }
+        
+        .guest-btn:hover {
+            background-color: #f5b301;
+            color: #121213;
+        }
+        
+        .auth-error {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .auth-success {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #666;
+            border-top: 1px solid #3a3a3c;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="numberguess.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div class="logo">NUMBRLE</div>
+        <div class="tagline">Account Access</div>
+    </header>
+    
+    <main>
+        <div class="auth-container">
+            <div class="tabs">
+                <div class="tab active" id="login-tab">Login</div>
+                <div class="tab" id="register-tab">Register</div>
+            </div>
+            
+            <div class="auth-error" id="auth-error"></div>
+            <div class="auth-success" id="auth-success"></div>
+            
+            <!-- Login Form -->
+            <div class="tab-content active" id="login-content">
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <div class="forgot-password">
+                        <a href="#" id="forgot-password-link">Forgot Password?</a>
+                    </div>
+                    <button type="submit" class="btn">LOGIN</button>
+                </form>
+                
+                <div class="or-divider">
+                    <span>OR</span>
+                </div>
+                
+                <div class="social-login">
+                    <button type="button" class="social-btn google-btn" id="google-login">
+                        <i class="fab fa-google"></i> Login with Google
+                    </button>
+                </div>
+                
+                <div class="guest-option">
+                    <p class="guest-text">Don't want to create an account?</p>
+                    <a href="guest.html" class="btn guest-btn">PLAY AS GUEST</a>
+                </div>
+            </div>
+            
+            <!-- Register Form -->
+            <div class="tab-content" id="register-content">
+                <form id="register-form">
+                    <div class="form-group">
+                        <label for="register-username">Username</label>
+                        <input type="text" id="register-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" id="register-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-confirm-password">Confirm Password</label>
+                        <input type="password" id="register-confirm-password" required>
+                    </div>
+                    <button type="submit" class="btn">REGISTER</button>
+                </form>
+                
+                <div class="or-divider">
+                    <span>OR</span>
+                </div>
+                
+                <div class="social-login">
+                    <button type="button" class="social-btn google-btn" id="google-register">
+                        <i class="fab fa-google"></i> Register with Google
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>© 2023 NUMBRLE - The Ultimate Number Guessing Game</p>
+    </footer>
+
+    <!-- Google OAuth -->
+    <script src="https://accounts.google.com/gsi/client"></script>
+    <!-- MongoDB Atlas API -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    
+    <script>
+        // Client ID for OAuth
+        const CLIENT_ID = '473131258076-ulg0nmfmoltc6rrapuo2pcrl6piutkub.apps.googleusercontent.com';
+        // Environment variables should be set on server
+        
+        // API endpoint for user management (Glitch backend)
+        const API_BASE_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3000/api' 
+            : 'https://nbguessing.glitch.me/';
+            
+        // DOM elements
+        const loginTab = document.getElementById('login-tab');
+        const registerTab = document.getElementById('register-tab');
+        const loginContent = document.getElementById('login-content');
+        const registerContent = document.getElementById('register-content');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const googleLoginBtn = document.getElementById('google-login');
+        const googleRegisterBtn = document.getElementById('google-register');
+        const forgotPasswordLink = document.getElementById('forgot-password-link');
+        const authError = document.getElementById('auth-error');
+        const authSuccess = document.getElementById('auth-success');
+        
+        // Tab switching
+        loginTab.addEventListener('click', () => {
+            loginTab.classList.add('active');
+            registerTab.classList.remove('active');
+            loginContent.classList.add('active');
+            registerContent.classList.remove('active');
+            clearMessages();
+        });
+        
+        registerTab.addEventListener('click', () => {
+            registerTab.classList.add('active');
+            loginTab.classList.remove('active');
+            registerContent.classList.add('active');
+            loginContent.classList.remove('active');
+            clearMessages();
+        });
+        
+        // Login form submission
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            clearMessages();
+            
+            // Call the backend API to authenticate the user
+            fetch(`${API_BASE_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Store user data and token in localStorage
+                    localStorage.setItem('numbrle_user', JSON.stringify(data.user));
+                    localStorage.setItem('numbrle_token', data.token);
+                    
+                    // Show success message and redirect
+                    showSuccessMessage('Login successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = 'numberguess.html';
+                    }, 1500);
+                } else {
+                    showErrorMessage(data.message || 'Login failed. Please check your credentials.');
+                }
+            })
+            .catch(error => {
+                showErrorMessage('An error occurred during login. Please try again.');
+                console.error('Login error:', error);
+            });
+        });
+        
+        // Register form submission
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            
+            clearMessages();
+            
+            // Password validation
+            if (password !== confirmPassword) {
+                showErrorMessage('Passwords do not match!');
+                return;
+            }
+            
+            // Call the backend API to register the user
+            fetch(`${API_BASE_URL}/auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Store user data and token in localStorage
+                    localStorage.setItem('numbrle_user', JSON.stringify(data.user));
+                    localStorage.setItem('numbrle_token', data.token);
+                    
+                    // Show success message and redirect
+                    showSuccessMessage('Registration successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = 'numberguess.html';
+                    }, 1500);
+                } else {
+                    showErrorMessage(data.message || 'Registration failed. Please try again.');
+                }
+            })
+            .catch(error => {
+                showErrorMessage('An error occurred during registration. Please try again.');
+                console.error('Registration error:', error);
+            });
+        });
+        
+        // Initialize Google OAuth
+        function initGoogleOAuth() {
+            google.accounts.id.initialize({
+                client_id: CLIENT_ID,
+                callback: handleGoogleCredentialResponse
+            });
+        }
+        
+        // Handle Google OAuth response
+        function handleGoogleCredentialResponse(response) {
+            // Send the token to your backend
+            const id_token = response.credential;
+            
+            fetch(`${API_BASE_URL}/auth/google`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ token: id_token })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Store user data and token in localStorage
+                    localStorage.setItem('numbrle_user', JSON.stringify(data.user));
+                    localStorage.setItem('numbrle_token', data.token);
+                    
+                    // Show success message and redirect
+                    showSuccessMessage('Google login successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = 'numberguess.html';
+                    }, 1500);
+                } else {
+                    showErrorMessage(data.message || 'Google login failed.');
+                }
+            })
+            .catch(error => {
+                showErrorMessage('An error occurred during Google login. Please try again.');
+                console.error('Google login error:', error);
+            });
+        }
+        
+        // Google sign in button click handlers
+        googleLoginBtn.addEventListener('click', () => {
+            clearMessages();
+            // Use Google's OAuth popup for login
+            google.accounts.id.prompt();
+        });
+        
+        googleRegisterBtn.addEventListener('click', () => {
+            clearMessages();
+            // Use Google's OAuth popup for registration
+            google.accounts.id.prompt();
+        });
+        
+        // Forgot password
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            
+            if (!email) {
+                showErrorMessage('Please enter your email address');
+                return;
+            }
+            
+            clearMessages();
+            
+            // Call the backend API to initiate password reset
+            fetch(`${API_BASE_URL}/auth/forgot-password`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccessMessage('Password reset email sent! Check your inbox.');
+                } else {
+                    showErrorMessage(data.message || 'Failed to send password reset email.');
+                }
+            })
+            .catch(error => {
+                showErrorMessage('An error occurred. Please try again.');
+                console.error('Password reset error:', error);
+            });
+        });
+        
+        // Helper functions for displaying messages
+        function showErrorMessage(message) {
+            authError.textContent = message;
+            authError.style.display = 'block';
+        }
+        
+        function showSuccessMessage(message) {
+            authSuccess.textContent = message;
+            authSuccess.style.display = 'block';
+        }
+        
+        function clearMessages() {
+            authError.style.display = 'none';
+            authSuccess.style.display = 'none';
+        }
+        
+        // Check if user is already logged in
+        function checkAuthStatus() {
+            const token = localStorage.getItem('numbrle_token');
+            if (token) {
+                // Verify token with the backend
+                fetch(`${API_BASE_URL}/auth/verify`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Token is valid, redirect to home page
+                        window.location.href = 'numberguess.html';
+                    } else {
+                        // Token is invalid, clear localStorage
+                        localStorage.removeItem('numbrle_user');
+                        localStorage.removeItem('numbrle_token');
+                    }
+                })
+                .catch(error => {
+                    console.error('Auth verification error:', error);
+                    localStorage.removeItem('numbrle_user');
+                    localStorage.removeItem('numbrle_token');
+                });
+            }
+        }
+        
+        // Initialize the page
+        window.onload = function() {
+            initGoogleOAuth();
+            checkAuthStatus();
+        };
+    </script>
+</body>
+</html> 

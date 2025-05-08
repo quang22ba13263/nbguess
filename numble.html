@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUMBLE - 5-Digit Number Guess</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: #121213;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        header {
+            padding: 15px 0;
+            text-align: center;
+            border-bottom: 1px solid #3a3a3c;
+            position: relative;
+        }
+        
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #f5b301;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .logo {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #f5b301;
+            margin-bottom: 5px;
+        }
+        
+        .tagline {
+            font-size: 1rem;
+            color: #888;
+        }
+        
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .game-info {
+            margin-bottom: 20px;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .game-description {
+            color: #aaa;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .attempts-info {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: #f5b301;
+        }
+        
+        .game-board {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .guess-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        
+        .digit-cell {
+            width: 100%;
+            aspect-ratio: 1/1;
+            border: 2px solid #3a3a3c;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        
+        .digit-cell.correct {
+            background-color: #538d4e;
+            border-color: #538d4e;
+        }
+        
+        .digit-cell.partial {
+            background-color: #b59f3b;
+            border-color: #b59f3b;
+        }
+        
+        .digit-cell.wrong {
+            background-color: #3a3a3c;
+            border-color: #3a3a3c;
+        }
+        
+        .digit-cell.active {
+            border-color: #f5b301;
+        }
+        
+        .digit-cell.shake {
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            10% { transform: translateX(-5px); }
+            20% { transform: translateX(5px); }
+            30% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            50% { transform: translateX(-5px); }
+            60% { transform: translateX(5px); }
+            70% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+            90% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+        
+        .keyboard {
+            width: 100%;
+            margin-top: auto;
+        }
+        
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .key {
+            min-width: 40px;
+            height: 58px;
+            border-radius: 4px;
+            background-color: #818384;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+        
+        .key:hover {
+            filter: brightness(1.1);
+        }
+        
+        .key:active {
+            transform: scale(0.95);
+        }
+        
+        .key.action-key {
+            font-size: 0.8rem;
+            padding: 0 10px;
+        }
+        
+        .key.correct {
+            background-color: #538d4e;
+        }
+        
+        .key.partial {
+            background-color: #b59f3b;
+        }
+        
+        .key.wrong {
+            background-color: #3a3a3c;
+        }
+        
+        .result-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: #1a1a1b;
+            border-radius: 8px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid #333;
+        }
+        
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #f5b301;
+        }
+        
+        .modal-message {
+            margin-bottom: 25px;
+            color: #eee;
+            line-height: 1.6;
+        }
+        
+        .correct-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #f5b301;
+            margin: 15px 0;
+            letter-spacing: 8px;
+        }
+        
+        .result-stats {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #212122;
+            border-radius: 6px;
+            text-align: left;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #aaa;
+        }
+        
+        .stat-value {
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        .btn {
+            background-color: #f5b301;
+            color: #121213;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            flex: 1;
+        }
+        
+        .btn:hover {
+            background-color: #ffcc33;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid #f5b301;
+            color: #f5b301;
+        }
+        
+        .btn-outline:hover {
+            background-color: #f5b301;
+            color: #121213;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            background-color: #212122;
+            color: white;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+        
+        footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #666;
+            border-top: 1px solid #3a3a3c;
+        }
+        
+        @media (max-width: 500px) {
+            .digit-cell {
+                font-size: 1.8rem;
+            }
+            
+            .key {
+                min-width: 30px;
+                height: 50px;
+                font-size: 0.9rem;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="numberguess.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div class="logo">NUMBRLE</div>
+        <div class="tagline">5-Digit Number Guess</div>
+    </header>
+    
+    <main>
+        <div class="game-info">
+            <p class="game-description">
+                Guess the 5-digit number in 5 attempts. Green indicates correct digit in correct position, yellow indicates correct digit in wrong position.
+            </p>
+            <p class="attempts-info" id="attempts-info">Attempt 1 of 5</p>
+        </div>
+        
+        <div class="game-board" id="game-board">
+            <!-- Row 1 -->
+            <div class="guess-row" data-row="0">
+                <div class="digit-cell" data-cell="0"></div>
+                <div class="digit-cell" data-cell="1"></div>
+                <div class="digit-cell" data-cell="2"></div>
+                <div class="digit-cell" data-cell="3"></div>
+                <div class="digit-cell" data-cell="4"></div>
+            </div>
+            
+            <!-- Row 2 -->
+            <div class="guess-row" data-row="1">
+                <div class="digit-cell" data-cell="0"></div>
+                <div class="digit-cell" data-cell="1"></div>
+                <div class="digit-cell" data-cell="2"></div>
+                <div class="digit-cell" data-cell="3"></div>
+                <div class="digit-cell" data-cell="4"></div>
+            </div>
+            
+            <!-- Row 3 -->
+            <div class="guess-row" data-row="2">
+                <div class="digit-cell" data-cell="0"></div>
+                <div class="digit-cell" data-cell="1"></div>
+                <div class="digit-cell" data-cell="2"></div>
+                <div class="digit-cell" data-cell="3"></div>
+                <div class="digit-cell" data-cell="4"></div>
+            </div>
+            
+            <!-- Row 4 -->
+            <div class="guess-row" data-row="3">
+                <div class="digit-cell" data-cell="0"></div>
+                <div class="digit-cell" data-cell="1"></div>
+                <div class="digit-cell" data-cell="2"></div>
+                <div class="digit-cell" data-cell="3"></div>
+                <div class="digit-cell" data-cell="4"></div>
+            </div>
+            
+            <!-- Row 5 -->
+            <div class="guess-row" data-row="4">
+                <div class="digit-cell" data-cell="0"></div>
+                <div class="digit-cell" data-cell="1"></div>
+                <div class="digit-cell" data-cell="2"></div>
+                <div class="digit-cell" data-cell="3"></div>
+                <div class="digit-cell" data-cell="4"></div>
+            </div>
+        </div>
+        
+        <div class="keyboard">
+            <div class="keyboard-row">
+                <div class="key" data-key="1">1</div>
+                <div class="key" data-key="2">2</div>
+                <div class="key" data-key="3">3</div>
+                <div class="key" data-key="4">4</div>
+                <div class="key" data-key="5">5</div>
+                <div class="key" data-key="6">6</div>
+                <div class="key" data-key="7">7</div>
+                <div class="key" data-key="8">8</div>
+                <div class="key" data-key="9">9</div>
+                <div class="key" data-key="0">0</div>
+            </div>
+            <div class="keyboard-row">
+                <div class="key action-key" data-key="backspace">DELETE</div>
+                <div class="key action-key" data-key="enter">ENTER</div>
+            </div>
+        </div>
+    </main>
+    
+    <div class="result-modal" id="result-modal">
+        <div class="modal-content">
+            <h2 class="modal-title" id="modal-title">You Win!</h2>
+            <p class="modal-message" id="modal-message">Great job! You guessed the number in <span id="attempts-count">3</span> attempts.</p>
+            
+            <div class="correct-number" id="correct-number">12345</div>
+            
+            <div class="result-stats">
+                <div class="stat-row">
+                    <span>Attempts:</span>
+                    <span class="stat-value" id="stat-attempts">3/5</span>
+                </div>
+                <div class="stat-row">
+                    <span>Time:</span>
+                    <span class="stat-value" id="stat-time">01:26</span>
+                </div>
+                <div class="stat-row">
+                    <span>Accuracy:</span>
+                    <span class="stat-value" id="stat-accuracy">60%</span>
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn" id="play-again-btn">PLAY AGAIN</button>
+                <button class="btn btn-outline" id="main-menu-btn">MAIN MENU</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast">Message here</div>
+    
+    <footer>
+        <p>© 2023 NUMBRLE - The Ultimate Number Guessing Game</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Game variables
+            let secretNumber = '';
+            let currentRow = 0;
+            let currentCell = 0;
+            let gameEnded = false;
+            let startTime = new Date();
+            let guessHistory = [];
+            
+            // DOM Elements
+            const gameBoard = document.getElementById('game-board');
+            const attemptsInfo = document.getElementById('attempts-info');
+            const resultModal = document.getElementById('result-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalMessage = document.getElementById('modal-message');
+            const correctNumberDisplay = document.getElementById('correct-number');
+            const statAttempts = document.getElementById('stat-attempts');
+            const statTime = document.getElementById('stat-time');
+            const statAccuracy = document.getElementById('stat-accuracy');
+            const playAgainBtn = document.getElementById('play-again-btn');
+            const mainMenuBtn = document.getElementById('main-menu-btn');
+            const toast = document.getElementById('toast');
+            
+            // Initialize game
+            function initGame() {
+                // Generate random 5-digit number
+                secretNumber = generateRandomNumber();
+                console.log("Secret number:", secretNumber);
+                
+                // Reset game state
+                currentRow = 0;
+                currentCell = 0;
+                gameEnded = false;
+                startTime = new Date();
+                guessHistory = [];
+                
+                // Reset the game board
+                resetGameBoard();
+                
+                // Update attempts info
+                updateAttemptsInfo();
+                
+                // Highlight first cell in first row
+                highlightCurrentCell();
+                
+                // Reset keyboard
+                resetKeyboard();
+            }
+            
+            // Generate a random 5-digit number
+            function generateRandomNumber() {
+                let num = "";
+                for (let i = 0; i < 5; i++) {
+                    num += Math.floor(Math.random() * 10).toString();
+                }
+                return num;
+            }
+            
+            // Reset the game board
+            function resetGameBoard() {
+                const rows = gameBoard.querySelectorAll('.guess-row');
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('.digit-cell');
+                    cells.forEach(cell => {
+                        cell.textContent = '';
+                        cell.className = 'digit-cell';
+                    });
+                });
+            }
+            
+            // Update attempts info
+            function updateAttemptsInfo() {
+                attemptsInfo.textContent = `Attempt ${currentRow + 1} of 5`;
+            }
+            
+            // Highlight current cell
+            function highlightCurrentCell() {
+                // Remove active class from all cells
+                document.querySelectorAll('.digit-cell').forEach(cell => {
+                    cell.classList.remove('active');
+                });
+                
+                // Add active class to current cell if game is not ended
+                if (!gameEnded && currentRow < 5) {
+                    const currentRowElement = document.querySelector(`.guess-row[data-row="${currentRow}"]`);
+                    if (currentRowElement && currentCell < 5) {
+                        const currentCellElement = currentRowElement.querySelector(`.digit-cell[data-cell="${currentCell}"]`);
+                        if (currentCellElement) {
+                            currentCellElement.classList.add('active');
+                        }
+                    }
+                }
+            }
+            
+            // Reset keyboard
+            function resetKeyboard() {
+                document.querySelectorAll('.key').forEach(key => {
+                    key.className = 'key';
+                    if (key.dataset.key === 'backspace' || key.dataset.key === 'enter') {
+                        key.className = 'key action-key';
+                    }
+                });
+            }
+            
+            // Handle digit key press
+            function handleDigitKey(digit) {
+                if (gameEnded || currentRow >= 5 || currentCell >= 5) return;
+                
+                const currentRowElement = document.querySelector(`.guess-row[data-row="${currentRow}"]`);
+                const currentCellElement = currentRowElement.querySelector(`.digit-cell[data-cell="${currentCell}"]`);
+                
+                currentCellElement.textContent = digit;
+                currentCell++;
+                
+                highlightCurrentCell();
+            }
+            
+            // Handle backspace key press
+            function handleBackspace() {
+                if (gameEnded || currentRow >= 5 || currentCell <= 0) return;
+                
+                currentCell--;
+                
+                const currentRowElement = document.querySelector(`.guess-row[data-row="${currentRow}"]`);
+                const currentCellElement = currentRowElement.querySelector(`.digit-cell[data-cell="${currentCell}"]`);
+                
+                currentCellElement.textContent = '';
+                
+                highlightCurrentCell();
+            }
+            
+            // Handle enter key press
+            function handleEnter() {
+                if (gameEnded || currentRow >= 5) return;
+                
+                // Check if all cells in current row are filled
+                const currentRowElement = document.querySelector(`.guess-row[data-row="${currentRow}"]`);
+                const cells = currentRowElement.querySelectorAll('.digit-cell');
+                let guess = '';
+                
+                cells.forEach(cell => {
+                    guess += cell.textContent;
+                });
+                
+                if (guess.length < 5) {
+                    showToast('Please enter 5 digits');
+                    shakeRow(currentRowElement);
+                    return;
+                }
+                
+                // Check guess against secret number
+                checkGuess(guess);
+                
+                // Move to next row
+                currentRow++;
+                currentCell = 0;
+                
+                // Update attempts info
+                updateAttemptsInfo();
+                
+                // Highlight first cell in new row
+                highlightCurrentCell();
+                
+                // Add guess to history
+                guessHistory.push(guess);
+                
+                // Check if game is over
+                if (guess === secretNumber) {
+                    gameEnded = true;
+                    showWinModal();
+                } else if (currentRow >= 5) {
+                    gameEnded = true;
+                    showLoseModal();
+                }
+            }
+            
+            // Check guess against secret number
+            function checkGuess(guess) {
+                const currentRowElement = document.querySelector(`.guess-row[data-row="${currentRow}"]`);
+                const cells = currentRowElement.querySelectorAll('.digit-cell');
+                
+                // Track which digits from the secret number have been matched
+                const secretDigits = secretNumber.split('');
+                const matchedIndices = new Array(5).fill(false);
+                
+                // First pass: Check for correct position matches (green)
+                for (let i = 0; i < 5; i++) {
+                    if (guess[i] === secretDigits[i]) {
+                        cells[i].classList.add('correct');
+                        matchedIndices[i] = true;
+                        
+                        // Update keyboard
+                        updateKeyStatus(guess[i], 'correct');
+                    }
+                }
+                
+                // Second pass: Check for correct digit, wrong position (yellow)
+                for (let i = 0; i < 5; i++) {
+                    if (guess[i] !== secretDigits[i]) {
+                        let found = false;
+                        
+                        for (let j = 0; j < 5; j++) {
+                            if (!matchedIndices[j] && guess[i] === secretDigits[j]) {
+                                cells[i].classList.add('partial');
+                                matchedIndices[j] = true;
+                                found = true;
+                                
+                                // Update keyboard if not already marked correct
+                                updateKeyStatus(guess[i], 'partial');
+                                break;
+                            }
+                        }
+                        
+                        if (!found) {
+                            cells[i].classList.add('wrong');
+                            
+                            // Update keyboard if not already marked
+                            updateKeyStatus(guess[i], 'wrong');
+                        }
+                    }
+                }
+            }
+            
+            // Update key status in the keyboard
+            function updateKeyStatus(digit, status) {
+                const key = document.querySelector(`.key[data-key="${digit}"]`);
+                if (!key) return;
+                
+                // Only upgrade status (wrong < partial < correct)
+                if (key.classList.contains('correct')) {
+                    return;
+                }
+                
+                if (status === 'correct') {
+                    key.className = 'key correct';
+                } else if (status === 'partial' && !key.classList.contains('correct')) {
+                    key.className = 'key partial';
+                } else if (status === 'wrong' && !key.classList.contains('correct') && !key.classList.contains('partial')) {
+                    key.className = 'key wrong';
+                }
+            }
+            
+            // Shake row when invalid input
+            function shakeRow(rowElement) {
+                rowElement.querySelectorAll('.digit-cell').forEach(cell => {
+                    cell.classList.add('shake');
+                    setTimeout(() => {
+                        cell.classList.remove('shake');
+                    }, 500);
+                });
+            }
+            
+            // Show toast message
+            function showToast(message) {
+                toast.textContent = message;
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Calculate elapsed time
+            function calculateElapsedTime() {
+                const endTime = new Date();
+                const elapsedMs = endTime - startTime;
+                const minutes = Math.floor(elapsedMs / 60000);
+                const seconds = Math.floor((elapsedMs % 60000) / 1000);
+                return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            // Calculate accuracy
+            function calculateAccuracy() {
+                let correctDigits = 0;
+                let totalDigits = currentRow * 5;
+                
+                guessHistory.forEach((guess, rowIndex) => {
+                    for (let i = 0; i < 5; i++) {
+                        if (guess[i] === secretNumber[i]) {
+                            correctDigits++;
+                        }
+                    }
+                });
+                
+                return Math.round((correctDigits / totalDigits) * 100);
+            }
+            
+            // Show win modal
+            function showWinModal() {
+                const elapsedTime = calculateElapsedTime();
+                const accuracy = calculateAccuracy();
+                
+                modalTitle.textContent = 'You Win!';
+                modalMessage.textContent = `Great job! You guessed the number in ${currentRow} ${currentRow === 1 ? 'attempt' : 'attempts'}.`;
+                correctNumberDisplay.textContent = secretNumber;
+                statAttempts.textContent = `${currentRow}/5`;
+                statTime.textContent = elapsedTime;
+                statAccuracy.textContent = `${accuracy}%`;
+                
+                resultModal.style.display = 'flex';
+                
+                // Save game results if user is logged in
+                saveGameResults(true);
+            }
+            
+            // Show lose modal
+            function showLoseModal() {
+                const elapsedTime = calculateElapsedTime();
+                const accuracy = calculateAccuracy();
+                
+                modalTitle.textContent = 'Game Over';
+                modalMessage.textContent = `The correct number was:`;
+                correctNumberDisplay.textContent = secretNumber;
+                statAttempts.textContent = `5/5`;
+                statTime.textContent = elapsedTime;
+                statAccuracy.textContent = `${accuracy}%`;
+                
+                resultModal.style.display = 'flex';
+                
+                // Save game results if user is logged in
+                saveGameResults(false);
+            }
+            
+            // Save game results
+            function saveGameResults(isWin) {
+                // Check if user is logged in (not a guest)
+                const isGuest = localStorage.getItem('isGuest') === 'true';
+                
+                if (!isGuest) {
+                    // This would typically involve a server call to save the results
+                    // For now, we'll just log it
+                    console.log('Saving game results:', {
+                        win: isWin,
+                        attempts: currentRow,
+                        secretNumber: secretNumber,
+                        guessHistory: guessHistory,
+                        time: calculateElapsedTime(),
+                        accuracy: calculateAccuracy()
+                    });
+                    
+                    // In a real implementation, you would send this data to your server
+                    // which would then save it to MongoDB
+                }
+            }
+            
+            // Event listeners
+            
+            // Keyboard click events
+            document.querySelectorAll('.key').forEach(key => {
+                key.addEventListener('click', function() {
+                    const keyValue = this.dataset.key;
+                    
+                    if (keyValue === 'enter') {
+                        handleEnter();
+                    } else if (keyValue === 'backspace') {
+                        handleBackspace();
+                    } else {
+                        handleDigitKey(keyValue);
+                    }
+                });
+            });
+            
+            // Physical keyboard events
+            document.addEventListener('keydown', function(e) {
+                if (e.key >= '0' && e.key <= '9') {
+                    handleDigitKey(e.key);
+                } else if (e.key === 'Backspace') {
+                    handleBackspace();
+                } else if (e.key === 'Enter') {
+                    handleEnter();
+                }
+            });
+            
+            // Play again button
+            playAgainBtn.addEventListener('click', function() {
+                resultModal.style.display = 'none';
+                initGame();
+            });
+            
+            // Main menu button
+            mainMenuBtn.addEventListener('click', function() {
+                window.location.href = 'numberguess.html';
+            });
+            
+            // Initialize the game when page loads
+            initGame();
+        });
+    </script>
+</body>
+</html>
