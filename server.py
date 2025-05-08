@@ -9,13 +9,17 @@ import uuid
 import logging
 
 # Thiết lập logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger('websocket_server')
 
 # Store active game rooms
 game_rooms = {}
 # Store active connections
 connected_clients = {}
+
+# Log environment information
+logger.info(f"Python version: {os.sys.version}")
+logger.info(f"Environment: {os.environ.get('NODE_ENV', 'development')}")
 
 class GameRoom:
     def __init__(self, room_id, max_players=4, rounds=3, min_num=1, max_num=100):
@@ -352,16 +356,19 @@ async def handle_connection(websocket, path):
                 del game_rooms[current_room.id]
 
 async def main():
-    # Chỉ lắng nghe trên localhost vì sẽ giao tiếp qua proxy
+    # Lắng nghe trên tất cả các interface để có thể kết nối từ bên ngoài
     port = int(os.environ.get("PORT", 8765))
+    host = "0.0.0.0"  # Lắng nghe trên tất cả các interface
+
+    logger.info(f"Starting WebSocket server on {host}:{port}")
     
     server = await websockets.serve(
         handle_connection,
-        "127.0.0.1",  # Chỉ lắng nghe trên localhost
+        host,
         port
     )
     
-    logger.info(f"WebSocket server started at ws://127.0.0.1:{port}")
+    logger.info(f"WebSocket server started at ws://{host}:{port}")
     
     # Clean up empty rooms periodically
     async def cleanup_empty_rooms():

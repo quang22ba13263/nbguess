@@ -770,9 +770,21 @@
             // Get proper WebSocket URL based on current location
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const host = window.location.hostname;
-            const serverUrl = window.location.hostname === 'localhost' 
-                ? 'ws://localhost:8765' 
-                : `${protocol}//${host}/ws`;
+            const port = window.location.hostname === 'localhost' ? ':8765' : '';
+            
+            // Use different connection strategies based on environment
+            let serverUrl;
+            
+            if (window.location.hostname === 'localhost') {
+                serverUrl = 'ws://localhost:8765';
+            } else if (window.location.hostname.includes('glitch.me')) {
+                // For Glitch deployment, use the proxy endpoint
+                serverUrl = `${protocol}//${host}/ws`;
+            } else {
+                serverUrl = `${protocol}//${host}${port}/ws`;
+            }
+            
+            console.log(`Attempting to connect to WebSocket server at: ${serverUrl}`);
                 
             try {
                 socket = new WebSocket(serverUrl);
@@ -782,6 +794,19 @@
                 socket.onmessage = handleSocketMessage;
                 socket.onclose = handleSocketClose;
                 socket.onerror = handleSocketError;
+                
+                // Set a connection timeout
+                const connectionTimeout = setTimeout(() => {
+                    if (socket.readyState !== WebSocket.OPEN) {
+                        console.error('WebSocket connection timeout');
+                        socket.close();
+                        setConnectionStatus('disconnected');
+                        showNotification('Connection timeout. Please refresh the page.', 'error');
+                    }
+                }, 10000);
+                
+                // Clear timeout when connected
+                socket.addEventListener('open', () => clearTimeout(connectionTimeout));
             } catch (e) {
                 console.error('WebSocket connection error', e);
                 setConnectionStatus('disconnected');
@@ -996,9 +1021,27 @@
         }
         
         function handleSocketError(error) {
-            console.error('WebSocket error', error);
+            console.error('WebSocket error:', error);
             setConnectionStatus('disconnected');
-            showNotification('Connection error', 'error');
+            
+            // Get the error details
+            let errorMessage = 'Connection error';
+            if (error && error.message) {
+                errorMessage += `: ${error.message}`;
+            }
+            
+            // Check if the error is related to CORS or security
+            if (error.message && error.message.includes('Security') || 
+                error.message && error.message.includes('CORS')) {
+                errorMessage = 'Security error: Please ensure you are using the correct protocol (http/https)';
+            }
+            
+            showNotification(errorMessage, 'error');
+            
+            // If we're on Glitch, provide a specific message
+            if (window.location.hostname.includes('glitch.me')) {
+                console.log('Detected Glitch.me environment - Note that WebSockets may need special configuration');
+            }
         }
         
         // Game-related functions

@@ -1,17 +1,21 @@
 {
   "install": "pip3 install --user -r requirements.txt",
-  "start": "bash start.sh",
+  "start": "npm start",
   "watch": {
-    "ignore": [
-      "\\.pyc$"
-    ],
-    "restart": {
+    "install": {
       "include": [
-        "\\.py$",
-        "^start\\.sh$",
+        "^package\\.json$",
+        "^\\.env$",
         "^requirements\\.txt$"
       ]
-    }
+    },
+    "restart": {
+      "include": [
+        "^server\\.js$",
+        "^server\\.py$"
+      ]
+    },
+    "throttle": 1000
   },
   "env": {
     "PYTHONPATH": "${HOME}/python_modules"

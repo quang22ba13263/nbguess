@@ -9,10 +9,30 @@ const path = require('path');
 const http = require('http');
 const WebSocket = require('ws');
 const { spawn } = require('child_process');
+const fs = require('fs');
+
+// Load environment variables if available
+try {
+  if (fs.existsSync('.env')) {
+    require('dotenv').config();
+  }
+} catch (err) {
+  console.log('No .env file found, using default environment');
+}
 
 // Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Environment detection
+const isProduction = process.env.NODE_ENV === 'production';
+console.log(`Running in ${isProduction ? 'production' : 'development'} mode`);
+console.log(`Server port: ${PORT}`);
+
+// Log environment info for debugging
+console.log('Node environment:', process.env.NODE_ENV);
+console.log('Platform:', process.platform);
+console.log('Host:', process.env.HOST || 'not set');
 
 // Middleware
 app.use(cors());
@@ -418,14 +438,31 @@ const server = http.createServer(app);
 // Khởi động Python WebSocket server như một process con
 const startPythonServer = () => {
   console.log("Starting Python WebSocket server...");
-  const pythonProcess = spawn('python', ['server.py']);
+  
+  // Check if we're on Glitch or similar platform
+  const isGlitch = process.env.PROJECT_DOMAIN || process.env.GLITCH || process.platform === 'linux';
+  
+  // Determine Python command based on environment
+  const pythonCommand = isGlitch ? 'python3' : 'python';
+  
+  console.log(`Using Python command: ${pythonCommand}`);
+  console.log(`Running on Glitch or similar platform: ${isGlitch ? 'Yes' : 'No'}`);
+  
+  // Set environment variables for Python process
+  const env = {
+    ...process.env,
+    PORT: process.env.PYTHON_WEBSOCKET_PORT || 8765,
+    NODE_ENV: process.env.NODE_ENV || 'development'
+  };
+  
+  const pythonProcess = spawn(pythonCommand, ['server.py'], { env });
 
   pythonProcess.stdout.on('data', (data) => {
-    console.log(`Python server: ${data}`);
+    console.log(`Python server: ${data.toString().trim()}`);
   });
 
   pythonProcess.stderr.on('data', (data) => {
-    console.error(`Python server error: ${data}`);
+    console.error(`Python server error: ${data.toString().trim()}`);
   });
 
   pythonProcess.on('close', (code) => {
@@ -434,6 +471,24 @@ const startPythonServer = () => {
     if (code !== 0) {
       console.log("Restarting Python server...");
       setTimeout(startPythonServer, 5000);
+    }
+  });
+  
+  pythonProcess.on('error', (err) => {
+    console.error('Failed to start Python server:', err);
+    console.log('Attempting to start Python server with python3 instead...');
+    
+    // Try with python3 if python fails
+    if (pythonCommand === 'python') {
+      const pythonProcess3 = spawn('python3', ['server.py'], { env });
+      
+      pythonProcess3.stdout.on('data', (data) => {
+        console.log(`Python3 server: ${data.toString().trim()}`);
+      });
+      
+      pythonProcess3.stderr.on('data', (data) => {
+        console.error(`Python3 server error: ${data.toString().trim()}`);
+      });
     }
   });
 
@@ -447,31 +502,55 @@ const wss = new WebSocket.Server({ noServer: true });
 server.on('upgrade', (request, socket, head) => {
   // Nếu đường dẫn là /ws - chuyển tiếp đến Python WebSocket server
   if (request.url === '/ws') {
+    console.log('WebSocket upgrade request received for /ws');
     wss.handleUpgrade(request, socket, head, (ws) => {
+      console.log('Client connected to proxy WebSocket server');
+      
+      // Xác định địa chỉ Python WebSocket server
+      const pythonHost = process.env.NODE_ENV === 'production' ? '127.0.0.1' : 'localhost';
+      const pythonPort = 8765;
+      const pythonWsUrl = `ws://${pythonHost}:${pythonPort}`;
+      
+      console.log(`Connecting to Python WebSocket server at ${pythonWsUrl}`);
+      
       // Tạo kết nối đến Python WebSocket server
-      const pythonWs = new WebSocket('ws://localhost:8765');
+      const pythonWs = new WebSocket(pythonWsUrl);
+      
+      pythonWs.on('open', () => {
+        console.log('Successfully connected to Python WebSocket server');
+      });
       
       // Chuyển tiếp messages từ client đến Python server
       ws.on('message', (message) => {
         if (pythonWs.readyState === WebSocket.OPEN) {
+          console.log('Forwarding message from client to Python server');
           pythonWs.send(message);
+        } else {
+          console.error('Cannot forward message: Python WebSocket not open');
         }
       });
       
       // Chuyển tiếp messages từ Python server đến client
       pythonWs.on('message', (message) => {
         if (ws.readyState === WebSocket.OPEN) {
+          console.log('Forwarding message from Python server to client');
           ws.send(message);
+        } else {
+          console.error('Cannot forward message: Client WebSocket not open');
         }
       });
       
       // Xử lý đóng kết nối
       ws.on('close', () => {
+        console.log('Client WebSocket closed, closing Python connection');
         pythonWs.close();
       });
       
-      pythonWs.on('close', () => {
-        ws.close();
+      pythonWs.on('close', (code, reason) => {
+        console.log(`Python WebSocket closed with code ${code}, reason: ${reason}`);
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.close();
+        }
       });
       
       // Xử lý lỗi
@@ -481,9 +560,15 @@ server.on('upgrade', (request, socket, head) => {
       
       pythonWs.on('error', (error) => {
         console.error('Python WebSocket error:', error);
-        ws.close();
+        console.log('Attempting to close client WebSocket due to Python error');
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.close();
+        }
       });
     });
+  } else {
+    console.log(`WebSocket upgrade request received for unsupported path: ${request.url}`);
+    socket.destroy();
   }
 });
 
