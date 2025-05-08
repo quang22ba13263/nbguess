@@ -1,18 +1,15 @@
 // Server for NUMBRLE game authentication with MongoDB and Google OAuth
 const express = require('express');
-const http = require('http'); // Cần http để làm việc với WebSocket proxy
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const path = require('path');
-const { createProxyMiddleware } = require('http-proxy-middleware'); // THÊM DÒNG NÀY
 
 // Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
-const PYTHON_WS_PORT_INTERNAL = process.env.PYTHON_WS_PORT || 8001; // Port Python server chạy nội bộ
 
 // Middleware
 app.use(cors());
@@ -22,22 +19,30 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files
 app.use(express.static(__dirname));
 
-// ... (Phần còn lại của code Google OAuth, JWT_SECRET, MongoDB URI, Mongoose Options, Health Check giữ nguyên) ...
 // Google OAuth client
 const googleClient = new OAuth2Client('473131258076-ulg0nmfmoltc6rrapuo2pcrl6piutkub.apps.googleusercontent.com');
+
+// Environment variables - Replace with your actual values in production
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+
+// Tạo URI MongoDB từ các thành phần riêng biệt nếu người dùng chia nhỏ biến môi trường
 let MONGODB_URI;
 if (process.env.MONGODB_USER && process.env.MONGODB_PASSWORD && process.env.MONGODB_CLUSTER) {
     MONGODB_URI = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_CLUSTER}/?retryWrites=true&w=majority&appName=nbguess`;
 } else {
     MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/numbrle';
 }
+
+// Thêm log để debug
 console.log('MongoDB URI configuration:');
 console.log('URI defined:', MONGODB_URI ? 'Yes' : 'No');
 if (MONGODB_URI) {
+    // Hiển thị URI an toàn (không hiện mật khẩu)
     const sanitizedURI = MONGODB_URI.replace(/\/\/([^:]+):([^@]+)@/, '//***:***@');
     console.log('Sanitized URI:', sanitizedURI);
 }
+
+// Cập nhật các tùy chọn kết nối MongoDB
 const mongooseOptions = {
     useNewUrlParser: true, 
     useUnifiedTopology: true,
@@ -47,8 +52,10 @@ const mongooseOptions = {
     heartbeatFrequencyMS: 30000,
     retryWrites: true,
     w: 'majority',
-    family: 4
+    family: 4  // Chỉ định IPv4 để tránh vấn đề IPv6
 };
+
+// Health check route for testing
 app.get('/api/health', (req, res) => {
     res.json({ 
         status: 'Server is running', 
@@ -57,6 +64,8 @@ app.get('/api/health', (req, res) => {
         nodeEnv: process.env.NODE_ENV || 'development'
     });
 });
+
+// Thiết lập kết nối MongoDB riêng biệt
 async function connectToMongoDB() {
     try {
         await mongoose.connect(MONGODB_URI, mongooseOptions);
@@ -64,6 +73,7 @@ async function connectToMongoDB() {
         return true;
     } catch (err) {
         console.error('MongoDB connection error details:', err);
+        // Hiển thị thông tin chi tiết lỗi
         if (err.name === 'MongoServerSelectionError') {
             console.error('Cannot connect to MongoDB server. Please check:');
             console.error('1. Network access/whitelist settings in MongoDB Atlas');
@@ -74,15 +84,19 @@ async function connectToMongoDB() {
         return false;
     }
 }
+
+// Gọi hàm kết nối
 connectToMongoDB().then(success => {
     if (!success) {
         console.log('Warning: Server running without MongoDB connection');
     }
 });
+
+// User Schema
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: false }, 
+    password: { type: String, required: false }, // Not required for OAuth users
     googleId: { type: String, required: false },
     profilePicture: { type: String, default: '' },
     createdAt: { type: Date, default: Date.now },
@@ -92,14 +106,20 @@ const userSchema = new mongoose.Schema({
         highScore: { type: Number, default: 0 }
     }
 });
+
+// User Model
 const User = mongoose.model('User', userSchema);
+
+// Generate JWT token
 const generateToken = (user) => {
     return jwt.sign(
         { id: user._id, email: user.email, username: user.username },
         JWT_SECRET,
-        { expiresIn: '7d' } 
+        { expiresIn: '7d' } // Token expires in 7 days
     );
 };
+
+// Sanitize user data for client
 const sanitizeUser = (user) => {
     return {
         id: user._id,
@@ -109,36 +129,44 @@ const sanitizeUser = (user) => {
         stats: user.stats
     };
 };
+
+// Verify JWT token middleware
 const verifyToken = (req, res, next) => {
     const authHeader = req.headers.authorization;
+    
     if (!authHeader) {
-        return res.status(401).json({ success: false, message: 'Access denied. No token provided.' });
+        return res.status(401).json({ 
+            success: false, 
+            message: 'Access denied. No token provided.' 
+        });
     }
-    const token = authHeader.split(' ')[1]; 
+    
+    const token = authHeader.split(' ')[1]; // Format: "Bearer TOKEN"
+    
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
         req.user = decoded;
         next();
     } catch (error) {
-        return res.status(401).json({ success: false, message: 'Invalid token.' });
+        return res.status(401).json({ 
+            success: false, 
+            message: 'Invalid token.' 
+        });
     }
 };
+
+// ROOT ROUTE - Serve the homepage
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'numberguess.html'));
 });
-app.post('/api/auth/register', async (req, res) => { /* ... giữ nguyên ... */ });
-app.post('/api/auth/login', async (req, res) => { /* ... giữ nguyên ... */ });
-app.post('/api/auth/google', async (req, res) => { /* ... giữ nguyên ... */ });
-app.get('/api/auth/verify', verifyToken, (req, res) => { /* ... giữ nguyên ... */ });
-app.post('/api/auth/forgot-password', async (req, res) => { /* ... giữ nguyên ... */ });
-app.get('/api/users/profile', verifyToken, async (req, res) => { /* ... giữ nguyên ... */ });
-app.put('/api/users/stats', verifyToken, async (req, res) => { /* ... giữ nguyên ... */ });
-app.get('/:page.html', (req, res) => { /* ... giữ nguyên ... */ });
-// --- GIỮ NGUYÊN CÁC ROUTES Ở TRÊN ---
-// API routes (đã có sẵn của bạn)
+
+// Routes
+// Register new user
 app.post('/api/auth/register', async (req, res) => {
     try {
         const { username, email, password } = req.body;
+        
+        // Check if user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ 
@@ -146,15 +174,24 @@ app.post('/api/auth/register', async (req, res) => {
                 message: 'User with this email already exists.' 
             });
         }
+        
+        // Hash password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
+        
+        // Create new user
         const user = new User({
             username,
             email,
             password: hashedPassword
         });
+        
+        // Save user to database
         await user.save();
+        
+        // Generate JWT token
         const token = generateToken(user);
+        
         res.status(201).json({
             success: true,
             token,
@@ -169,9 +206,12 @@ app.post('/api/auth/register', async (req, res) => {
     }
 });
 
+// Login user
 app.post('/api/auth/login', async (req, res) => {
     try {
         const { email, password } = req.body;
+        
+        // Check if user exists
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ 
@@ -179,13 +219,8 @@ app.post('/api/auth/login', async (req, res) => {
                 message: 'Invalid email or password.' 
             });
         }
-        // Kiểm tra xem user có password không (trường hợp user đăng nhập bằng Google trước đó)
-        if (!user.password) {
-             return res.status(400).json({ 
-                success: false, 
-                message: 'Please log in using Google, or reset your password if you created account via email before.' 
-            });
-        }
+        
+        // Check if password is correct
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ 
@@ -193,7 +228,10 @@ app.post('/api/auth/login', async (req, res) => {
                 message: 'Invalid email or password.' 
             });
         }
+        
+        // Generate JWT token
         const token = generateToken(user);
+        
         res.json({
             success: true,
             token,
@@ -208,25 +246,36 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
+// Google OAuth login/register
 app.post('/api/auth/google', async (req, res) => {
     try {
         const { token } = req.body;
+        
+        // Verify Google token
         const ticket = await googleClient.verifyIdToken({
             idToken: token,
             audience: '473131258076-ulg0nmfmoltc6rrapuo2pcrl6piutkub.apps.googleusercontent.com'
         });
+        
         const payload = ticket.getPayload();
         const { sub: googleId, email, name, picture } = payload;
+        
+        // Check if user already exists
         let user = await User.findOne({ googleId });
+        
         if (!user) {
+            // Check if email already exists
             user = await User.findOne({ email });
+            
             if (user) {
+                // Update existing user with Google ID
                 user.googleId = googleId;
                 if (!user.profilePicture && picture) {
                     user.profilePicture = picture;
                 }
                 await user.save();
             } else {
+                // Create new user
                 user = new User({
                     username: name,
                     email,
@@ -236,7 +285,10 @@ app.post('/api/auth/google', async (req, res) => {
                 await user.save();
             }
         }
+        
+        // Generate JWT token
         const jwtToken = generateToken(user);
+        
         res.json({
             success: true,
             token: jwtToken,
@@ -251,13 +303,17 @@ app.post('/api/auth/google', async (req, res) => {
     }
 });
 
+// Verify token
 app.get('/api/auth/verify', verifyToken, (req, res) => {
     res.json({ success: true });
 });
 
+// Forgot password
 app.post('/api/auth/forgot-password', async (req, res) => {
     try {
         const { email } = req.body;
+        
+        // Check if user exists
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(404).json({ 
@@ -265,6 +321,10 @@ app.post('/api/auth/forgot-password', async (req, res) => {
                 message: 'User not found.' 
             });
         }
+        
+        // In a real application, send password reset email
+        // For this example, we'll just return success
+        
         res.json({ 
             success: true, 
             message: 'Password reset email sent.' 
@@ -278,6 +338,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     }
 });
 
+// Get user profile
 app.get('/api/users/profile', verifyToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
@@ -287,6 +348,7 @@ app.get('/api/users/profile', verifyToken, async (req, res) => {
                 message: 'User not found.' 
             });
         }
+        
         res.json({
             success: true,
             user: sanitizeUser(user)
@@ -300,9 +362,11 @@ app.get('/api/users/profile', verifyToken, async (req, res) => {
     }
 });
 
+// Update user stats
 app.put('/api/users/stats', verifyToken, async (req, res) => {
     try {
         const { gamesPlayed, gamesWon, highScore } = req.body;
+        
         const user = await User.findById(req.user.id);
         if (!user) {
             return res.status(404).json({ 
@@ -310,12 +374,16 @@ app.put('/api/users/stats', verifyToken, async (req, res) => {
                 message: 'User not found.' 
             });
         }
+        
+        // Update stats
         if (gamesPlayed !== undefined) user.stats.gamesPlayed = gamesPlayed;
         if (gamesWon !== undefined) user.stats.gamesWon = gamesWon;
         if (highScore !== undefined && highScore > user.stats.highScore) {
             user.stats.highScore = highScore;
         }
+        
         await user.save();
+        
         res.json({
             success: true,
             user: sanitizeUser(user)
@@ -329,9 +397,11 @@ app.put('/api/users/stats', verifyToken, async (req, res) => {
     }
 });
 
+// Route to handle all other page requests - serve the appropriate HTML files
 app.get('/:page.html', (req, res) => {
     const page = req.params.page;
-    const validPages = ['numberguess', 'login', 'guest', 'numble', 'multiplayer']; // Thêm 'multiplayer' nếu có file multiplayer.html
+    const validPages = ['numberguess', 'login', 'guest', 'numble', 'multiplayer'];
+    
     if (validPages.includes(page)) {
         res.sendFile(path.join(__dirname, `${page}.html`));
     } else {
@@ -339,39 +409,7 @@ app.get('/:page.html', (req, res) => {
     }
 });
 
-
-// --- THÊM PHẦN PROXY CHO PYTHON WEBSOCKET SERVER ---
-// Proxy WebSocket requests đến Python server
-const wsPythonProxy = createProxyMiddleware({
-  target: `http://127.0.0.1:${PYTHON_WS_PORT_INTERNAL}`, // Target là Python server nội bộ
-  ws: true, // Quan trọng: Bật proxy cho WebSocket
-  logLevel: 'debug', // Để xem log nếu có vấn đề
-  onError: (err, req, res) => {
-    console.error('Proxy Error:', err);
-    // Nếu res có thể ghi (ví dụ, không phải WebSocket upgrade)
-    if (res && res.writeHead && !res.headersSent) {
-        res.writeHead(500, {
-            'Content-Type': 'text/plain'
-        });
-        res.end('Proxy error: Could not connect to WebSocket service.');
-    }
-  }
-});
-
-// Áp dụng proxy cho một đường dẫn cụ thể, ví dụ /ws_python
-// Client sẽ kết nối tới wss://your-project.glitch.me/ws_python
-app.use('/ws_python', wsPythonProxy);
-
-
-// Tạo HTTP server từ Express app
-const server = http.createServer(app); // THAY ĐỔI: Dùng http.createServer
-
-// Nâng cấp kết nối WebSocket cho proxy (quan trọng khi dùng http-proxy-middleware với ws:true)
-// server.on('upgrade', wsPythonProxy.upgrade); // http-proxy-middleware phiên bản mới thường tự xử lý khi ws:true và dùng với app
-
-
-// Start server (dùng server.listen thay vì app.listen)
-server.listen(PORT, () => { // THAY ĐỔI: Dùng server.listen
-    console.log(`Node.js server running on port ${PORT}`);
-    console.log(`Python WebSocket will be proxied from /ws_python to internal port ${PYTHON_WS_PORT_INTERNAL}`);
-});
+// Start server
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+}); 
