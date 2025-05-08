@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* CSS của bạn giữ nguyên ở đây */
         * {
             margin: 0;
             padding: 0;
@@ -457,39 +458,26 @@
                     <div class="game-title">Multiplayer Number Guessing</div>
                     <div class="game-subtitle">Take turns guessing the number</div>
                 </div>
-                <div class="game-room">Room Code: <strong>ABCDE</strong></div>
+                <div class="game-room">Room Code: <strong id="room-code">Waiting...</strong></div>
             </div>
             
             <div class="game-content">
                 <div class="number-range">
-                    Guess a number between <span>1</span> and <span>100</span>
+                    Guess a number between <span id="min-range">1</span> and <span id="max-range">100</span>
                 </div>
                 
                 <div class="current-player">
-                    Current Turn: <span class="player-turn">Player1</span>
-                    <div class="game-status">Time remaining: 30s</div>
+                    Current Turn: <span class="player-turn" id="current-player-turn">Waiting...</span>
+                    <div class="game-status" id="game-status-message">Waiting for game to start...</div>
                 </div>
                 
                 <div class="guess-form">
-                    <input type="number" class="guess-input" id="guess-input" min="1" max="100" placeholder="Enter your guess...">
-                    <button class="btn" id="guess-btn">SUBMIT GUESS</button>
+                    <input type="number" class="guess-input" id="guess-input" min="1" max="100" placeholder="Enter your guess..." disabled>
+                    <button class="btn" id="guess-btn" disabled>SUBMIT GUESS</button>
                 </div>
                 
                 <div class="game-history" id="game-history">
-                    <div class="history-item">
-                        <span class="history-player">Player2:</span>
-                        <span class="history-guess">42</span>
-                        <span class="history-result result-higher">HIGHER</span>
-                    </div>
-                    <div class="history-item">
-                        <span class="history-player">Player1:</span>
-                        <span class="history-guess">67</span>
-                        <span class="history-result result-lower">LOWER</span>
-                    </div>
-                    <div class="history-item">
-                        <span class="history-player">System:</span>
-                        <span>Game started - Guess the number between 1-100</span>
-                    </div>
+                    <!-- Game history items will be added here by JavaScript -->
                 </div>
                 
                 <div class="game-actions">
@@ -499,28 +487,11 @@
         </div>
         
         <div class="chat-section">
-            <div class="players-list">
+            <div class="players-list" id="players-list-container">
                 <div class="players-title">
-                    <i class="fas fa-users"></i> Players (3/4)
+                    <i class="fas fa-users"></i> Players (<span id="current-players-count">0</span>/<span id="max-players-count">0</span>)
                 </div>
-                
-                <div class="player-item">
-                    <div class="player-avatar">P1</div>
-                    <div class="player-name">Player1 (You)</div>
-                    <div class="player-score">0 pts</div>
-                </div>
-                
-                <div class="player-item">
-                    <div class="player-avatar">P2</div>
-                    <div class="player-name">Player2</div>
-                    <div class="player-score">0 pts</div>
-                </div>
-                
-                <div class="player-item">
-                    <div class="player-avatar">P3</div>
-                    <div class="player-name">Player3</div>
-                    <div class="player-score">0 pts</div>
-                </div>
+                <!-- Player items will be added here by JavaScript -->
             </div>
             
             <div class="chat-container">
@@ -529,28 +500,7 @@
                 </div>
                 
                 <div class="chat-messages" id="chat-messages">
-                    <div class="message message-system">
-                        Game started. Good luck everyone!
-                    </div>
-                    
-                    <div class="message message-receiver">
-                        <div class="message-content">Hi everyone! Good luck 🍀</div>
-                        <div class="message-info">Player2 • 2:34 PM</div>
-                    </div>
-                    
-                    <div class="message message-sender">
-                        <div class="message-content">Thanks! Good luck to you too!</div>
-                        <div class="message-info">You • 2:35 PM</div>
-                    </div>
-                    
-                    <div class="message message-system">
-                        Player3 joined the game
-                    </div>
-                    
-                    <div class="message message-receiver">
-                        <div class="message-content">Hi all, sorry I'm late!</div>
-                        <div class="message-info">Player3 • 2:36 PM</div>
-                    </div>
+                    <!-- Chat messages will be added here by JavaScript -->
                 </div>
                 
                 <div class="chat-input">
@@ -575,128 +525,372 @@
             const chatInput = document.getElementById('chat-input');
             const sendBtn = document.getElementById('send-btn');
             const chatMessages = document.getElementById('chat-messages');
+            const roomCodeDisplay = document.getElementById('room-code');
+            const currentPlayerTurnDisplay = document.getElementById('current-player-turn');
+            const gameStatusMessageDisplay = document.getElementById('game-status-message');
+            const playersListContainer = document.getElementById('players-list-container'); // Parent for player items
+            const currentPlayersCountDisplay = document.getElementById('current-players-count');
+            const maxPlayersCountDisplay = document.getElementById('max-players-count');
             
-            // Mock data for frontend demo
-            const isMyTurn = true;
-            const username = localStorage.getItem('guestNickname') || 'Player1';
-            
-            // Set up initial state
-            if (!isMyTurn) {
-                guessBtn.disabled = true;
-                guessInput.disabled = true;
-                guessInput.placeholder = "Waiting for other player's turn...";
+            // Lấy username từ localStorage hoặc API (nếu có đăng nhập)
+            // Đây là ví dụ, bạn cần điều chỉnh để lấy thông tin người dùng thật
+            const currentUser = {
+                id: 'user-' + Math.random().toString(36).substr(2, 9), // Tạo ID tạm thời
+                name: localStorage.getItem('guestNickname') || 'Player' + Math.floor(Math.random() * 1000),
+                // avatar: 'P' // hoặc URL avatar
+            };
+            // Hiển thị tên người dùng hiện tại (nếu có chỗ nào đó bạn muốn hiển thị "You")
+            // Ví dụ: document.getElementById('my-username-display').textContent = currentUser.name;
+
+
+            // // WEBSOCKET START
+            let socket = null;
+
+            function connectWebSocket() {
+                // Lấy URL cơ sở của trang, thay http bằng ws hoặc https bằng wss
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const host = window.location.host; // Sẽ là nbguessing.glitch.me (hoặc localhost khi dev)
+                const wsUrl = `${protocol}//${host}/ws_python`; // Kết nối qua proxy path
+
+                console.log("Attempting to connect to WebSocket at:", wsUrl);
+                addSystemMessageToChat("Connecting to server...");
+
+                socket = new WebSocket(wsUrl);
+
+                socket.onopen = () => {
+                    console.log('WebSocket connection established to Python server!');
+                    addSystemMessageToChat("Connected to server! Joining game...");
+                    // Gửi thông tin người chơi khi kết nối thành công
+                    // Bạn có thể gửi thông tin phòng (nếu có) hoặc yêu cầu tạo/vào phòng
+                    socket.send(JSON.stringify({ 
+                        type: "JOIN_REQUEST", 
+                        payload: { 
+                            userId: currentUser.id, 
+                            username: currentUser.name 
+                            // roomCode: "SOME_ROOM_CODE" // Nếu người dùng nhập mã phòng
+                        } 
+                    }));
+                };
+
+                socket.onmessage = (event) => {
+                    console.log('Message from Python server: ', event.data);
+                    try {
+                        const messageData = JSON.parse(event.data);
+                        handleServerMessage(messageData);
+                    } catch (e) {
+                        console.error("Error parsing message from server:", e);
+                        addSystemMessageToChat("Received malformed message from server.");
+                    }
+                };
+
+                socket.onclose = (event) => {
+                    if (event.wasClean) {
+                        console.log(`WebSocket connection closed cleanly, code=${event.code} reason=${event.reason}`);
+                        addSystemMessageToChat(`Disconnected: ${event.reason || 'Connection closed cleanly'}`);
+                    } else {
+                        console.error('WebSocket connection died');
+                        addSystemMessageToChat('Connection lost. Attempting to reconnect in 5 seconds...');
+                        // Tùy chọn: Thử kết nối lại sau một khoảng thời gian
+                        setTimeout(connectWebSocket, 5000);
+                    }
+                    // Vô hiệu hóa các nút khi mất kết nối
+                    guessBtn.disabled = true;
+                    guessInput.disabled = true;
+                    guessInput.placeholder = "Disconnected...";
+                    sendBtn.disabled = true;
+                    chatInput.disabled = true;
+                };
+
+                socket.onerror = (error) => {
+                    console.error('WebSocket Error: ', error);
+                    addSystemMessageToChat('WebSocket error. Check console for details.');
+                    // Vô hiệu hóa các nút khi có lỗi
+                    guessBtn.disabled = true;
+                    guessInput.disabled = true;
+                    sendBtn.disabled = true;
+                    chatInput.disabled = true;
+                };
             }
+
+            function handleServerMessage(message) {
+                switch (message.type) {
+                    case 'JOIN_SUCCESS': // Server xác nhận tham gia phòng thành công
+                        roomCodeDisplay.textContent = message.payload.roomCode;
+                        addSystemMessageToChat(`Joined room: ${message.payload.roomCode}. Waiting for players...`);
+                        updatePlayersList(message.payload.players);
+                        updateGameInfo(message.payload.gameInfo); // Min/max range, current turn if game started
+                        break;
+                    case 'PLAYER_JOINED': // Người chơi khác tham gia
+                        addSystemMessageToChat(`${message.payload.username} joined the game.`);
+                        updatePlayersList(message.payload.players);
+                        break;
+                    case 'PLAYER_LEFT': // Người chơi khác rời đi
+                        addSystemMessageToChat(`${message.payload.username} left the game.`);
+                        updatePlayersList(message.payload.players);
+                        break;
+                    case 'GAME_START': // Game bắt đầu
+                        addSystemMessageToGameHistory(`Game started! Guess between ${message.payload.range.min} and ${message.payload.range.max}.`);
+                        document.getElementById('min-range').textContent = message.payload.range.min;
+                        document.getElementById('max-range').textContent = message.payload.range.max;
+                        updateTurn(message.payload.currentPlayer);
+                        break;
+                    case 'GAME_UPDATE': // Cập nhật trạng thái game (ví dụ: sau một lượt đoán)
+                        addGuessToHistory(message.payload.lastGuess.player, message.payload.lastGuess.guess, message.payload.lastGuess.result);
+                        updateTurn(message.payload.currentPlayer);
+                        gameStatusMessageDisplay.textContent = message.payload.feedback || ''; // "Higher", "Lower" etc.
+                        break;
+                    case 'GAME_OVER': // Game kết thúc
+                        addSystemMessageToGameHistory(`Game Over! ${message.payload.winner} wins! The number was ${message.payload.secretNumber}.`);
+                        addSystemMessageToChat(`${message.payload.winner} is the winner!`);
+                        guessBtn.disabled = true;
+                        guessInput.disabled = true;
+                        guessInput.placeholder = "Game Over!";
+                        currentPlayerTurnDisplay.textContent = "Game Over";
+                        break;
+                    case 'CHAT_MESSAGE': // Nhận tin nhắn chat
+                        addChatMessage(message.payload.senderName, message.payload.text, false); // false vì đây là tin nhắn nhận được
+                        break;
+                    case 'ERROR': // Lỗi từ server
+                        console.error("Server error:", message.payload.message);
+                        addSystemMessageToChat(`Error: ${message.payload.message}`);
+                        alert(`Server Error: ${message.payload.message}`);
+                        break;
+                    case 'YOUR_TURN': // Thông báo đến lượt của bạn
+                        addSystemMessageToGameHistory("It's your turn!");
+                        gameStatusMessageDisplay.textContent = "Your turn to guess!";
+                        guessInput.disabled = false;
+                        guessBtn.disabled = false;
+                        guessInput.placeholder = "Enter your guess...";
+                        guessInput.focus();
+                        break;
+                    case 'WAIT_FOR_TURN': // Thông báo chờ lượt
+                        gameStatusMessageDisplay.textContent = `Waiting for ${message.payload.currentPlayerName}'s turn...`;
+                        guessInput.disabled = true;
+                        guessBtn.disabled = true;
+                        guessInput.placeholder = "Waiting for other player...";
+                        break;
+                    default:
+                        console.log("Received unhandled message type:", message.type);
+                }
+            }
+
+            function updateGameInfo(gameInfo) {
+                if (gameInfo) {
+                    if(gameInfo.range) {
+                        document.getElementById('min-range').textContent = gameInfo.range.min;
+                        document.getElementById('max-range').textContent = gameInfo.range.max;
+                    }
+                    if(gameInfo.currentPlayer) {
+                         updateTurn(gameInfo.currentPlayer);
+                    }
+                }
+            }
+
+            function updatePlayersList(players) {
+                // Xóa danh sách người chơi hiện tại trước khi render lại
+                // Giữ lại thẻ title
+                const titleElement = playersListContainer.querySelector('.players-title');
+                playersListContainer.innerHTML = ''; 
+                if (titleElement) playersListContainer.appendChild(titleElement);
+
+                currentPlayersCountDisplay.textContent = players.length;
+                // Giả sử max_players được gửi từ server hoặc cố định
+                // maxPlayersCountDisplay.textContent = message.payload.maxPlayers || 4; 
+
+                players.forEach(player => {
+                    const playerItem = document.createElement('div');
+                    playerItem.className = 'player-item';
+                    
+                    const avatarInitial = player.name ? player.name.substring(0, 1).toUpperCase() : 'P';
+                    let displayName = player.name;
+                    if (player.id === currentUser.id) {
+                        displayName += " (You)";
+                    }
+
+                    playerItem.innerHTML = `
+                        <div class="player-avatar">${avatarInitial}</div>
+                        <div class="player-name">${displayName}</div>
+                        <div class="player-score">${player.score || 0} pts</div>
+                    `;
+                    playersListContainer.appendChild(playerItem);
+                });
+            }
+
+            function updateTurn(currentPlayerInfo) {
+                 if (!currentPlayerInfo) return;
+                 const turnPlayerName = currentPlayerInfo.name || 'Unknown Player';
+                 currentPlayerTurnDisplay.textContent = turnPlayerName;
+
+                if (currentPlayerInfo.id === currentUser.id) {
+                    handleServerMessage({type: 'YOUR_TURN'}); // Kích hoạt lượt của client này
+                } else {
+                    handleServerMessage({type: 'WAIT_FOR_TURN', payload: {currentPlayerName: turnPlayerName}});
+                }
+            }
+            
+            // // WEBSOCKET END
+
+
+            // Mock data and initial state - Sẽ được thay thế bởi dữ liệu từ WebSocket
+            // const isMyTurn = true; // Sẽ được quản lý bởi server
+            
+            // Set up initial state - Sẽ được quản lý bởi server
+            // if (!isMyTurn) {
+            //     guessBtn.disabled = true;
+            //     guessInput.disabled = true;
+            //     guessInput.placeholder = "Waiting for other player's turn...";
+            // }
             
             // Handle guess submission
             guessBtn.addEventListener('click', function() {
-                const guess = guessInput.value.trim();
+                const guessValue = guessInput.value.trim();
                 
-                if (!guess || isNaN(guess) || guess < 1 || guess > 100) {
-                    alert('Please enter a valid number between 1 and 100');
+                if (!guessValue || isNaN(guessValue)) {
+                    alert('Please enter a valid number.');
+                    return;
+                }
+                const guessNumber = parseInt(guessValue);
+                const minRange = parseInt(document.getElementById('min-range').textContent);
+                const maxRange = parseInt(document.getElementById('max-range').textContent);
+
+                if (guessNumber < minRange || guessNumber > maxRange) {
+                    alert(`Please enter a number between ${minRange} and ${maxRange}`);
                     return;
                 }
                 
-                // In a real implementation, this would send the guess to the server
-                // For now, just add it to the history with a random result
-                const results = ['HIGHER', 'LOWER', 'CORRECT'];
-                const randomResult = results[Math.floor(Math.random() * (results.length - 1))]; // Exclude CORRECT for demo
-                
-                const resultClass = randomResult === 'HIGHER' ? 'result-higher' : 
-                                   randomResult === 'LOWER' ? 'result-lower' : 'result-correct';
-                
-                const historyEntry = document.createElement('div');
-                historyEntry.className = 'history-item';
-                historyEntry.innerHTML = `
-                    <span class="history-player">${username}:</span>
-                    <span class="history-guess">${guess}</span>
-                    <span class="history-result ${resultClass}">${randomResult}</span>
-                `;
-                
-                gameHistory.insertBefore(historyEntry, gameHistory.firstChild);
-                
-                // Clear input and disable for demo
-                guessInput.value = '';
-                guessBtn.disabled = true;
-                guessInput.disabled = true;
-                guessInput.placeholder = "Waiting for other player's turn...";
-                
-                // Simulate other player's turn after a delay
-                setTimeout(() => {
-                    // In a real implementation, this would be triggered by server events
-                    simulateOtherPlayerGuess();
-                }, 3000);
-            });
-            
-            // Simulate other player's guess
-            function simulateOtherPlayerGuess() {
-                const otherPlayer = 'Player2';
-                const randomGuess = Math.floor(Math.random() * 100) + 1;
-                const results = ['HIGHER', 'LOWER'];
-                const randomResult = results[Math.floor(Math.random() * results.length)];
-                
-                const resultClass = randomResult === 'HIGHER' ? 'result-higher' : 'result-lower';
-                
-                const historyEntry = document.createElement('div');
-                historyEntry.className = 'history-item';
-                historyEntry.innerHTML = `
-                    <span class="history-player">${otherPlayer}:</span>
-                    <span class="history-guess">${randomGuess}</span>
-                    <span class="history-result ${resultClass}">${randomResult}</span>
-                `;
-                
-                gameHistory.insertBefore(historyEntry, gameHistory.firstChild);
-                
-                // Re-enable input for demo
-                guessBtn.disabled = false;
-                guessInput.disabled = false;
-                guessInput.placeholder = "Enter your guess...";
-            }
-            
-            // Handle chat submission
-            sendBtn.addEventListener('click', sendChatMessage);
-            chatInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    sendChatMessage();
+                // Gửi guess đến server qua WebSocket
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({
+                        type: "PLAYER_GUESS",
+                        payload: {
+                            guess: guessNumber
+                        }
+                    }));
+                    // Vô hiệu hóa input sau khi gửi, server sẽ kích hoạt lại nếu đến lượt
+                    guessInput.value = '';
+                    // guessBtn.disabled = true; // Server sẽ quyết định
+                    // guessInput.disabled = true; // Server sẽ quyết định
+                    // guessInput.placeholder = "Waiting for result...";
+                } else {
+                    addSystemMessageToChat("Not connected to server. Cannot send guess.");
                 }
             });
             
-            function sendChatMessage() {
+            // Không cần hàm simulateOtherPlayerGuess nữa, server sẽ gửi cập nhật
+
+            function addGuessToHistory(playerName, guess, result) {
+                let resultClass = '';
+                let resultText = result.toUpperCase(); // HIGHER, LOWER, CORRECT
+
+                if (resultText === 'HIGHER') resultClass = 'result-higher';
+                else if (resultText === 'LOWER') resultClass = 'result-lower';
+                else if (resultText === 'CORRECT') resultClass = 'result-correct';
+                
+                const historyEntry = document.createElement('div');
+                historyEntry.className = 'history-item';
+                historyEntry.innerHTML = `
+                    <span class="history-player">${playerName}:</span>
+                    <span class="history-guess">${guess}</span>
+                    <span class="history-result ${resultClass}">${resultText}</span>
+                `;
+                
+                gameHistory.insertBefore(historyEntry, gameHistory.firstChild);
+            }
+
+            function addSystemMessageToGameHistory(messageText) {
+                const historyEntry = document.createElement('div');
+                historyEntry.className = 'history-item'; // Hoặc một class khác cho system message
+                historyEntry.innerHTML = `
+                    <span class="history-player">System:</span>
+                    <span>${messageText}</span>
+                `;
+                gameHistory.insertBefore(historyEntry, gameHistory.firstChild);
+            }
+            
+            // Handle chat submission
+            sendBtn.addEventListener('click', sendChatMessageViaSocket);
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendChatMessageViaSocket();
+                }
+            });
+            
+            function sendChatMessageViaSocket() {
                 const messageText = chatInput.value.trim();
-                
                 if (!messageText) return;
-                
-                // Get current time
+
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({
+                        type: "CHAT_MESSAGE",
+                        payload: {
+                            text: messageText
+                            // senderId và senderName sẽ được server thêm vào dựa trên kết nối WebSocket
+                        }
+                    }));
+                    // Hiển thị tin nhắn của chính mình ngay lập tức (optional, server cũng sẽ gửi lại)
+                    // addChatMessage(currentUser.name, messageText, true); 
+                    chatInput.value = '';
+                } else {
+                     addSystemMessageToChat("Not connected to server. Cannot send message.");
+                }
+            }
+
+            function addChatMessage(senderName, messageText, isSender) {
                 const now = new Date();
                 const hours = now.getHours();
                 const minutes = now.getMinutes();
-                const timeString = `${hours}:${minutes.toString().padStart(2, '0')} ${hours >= 12 ? 'PM' : 'AM'}`;
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                const displayHours = hours % 12 || 12; // convert 0 to 12
+                const timeString = `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
                 
-                // Create message element
                 const messageElement = document.createElement('div');
-                messageElement.className = 'message message-sender';
+                // Xác định class dựa trên người gửi là client hiện tại hay người khác
+                // Nếu isSender là true (tin nhắn của chính mình) hoặc senderName trùng với currentUser.name
+                if (isSender || senderName === currentUser.name) {
+                     messageElement.className = 'message message-sender';
+                     senderName = "You"; // Hiển thị "You" cho tin nhắn của chính mình
+                } else {
+                     messageElement.className = 'message message-receiver';
+                }
+
                 messageElement.innerHTML = `
-                    <div class="message-content">${messageText}</div>
-                    <div class="message-info">You • ${timeString}</div>
+                    <div class="message-content">${escapeHTML(messageText)}</div>
+                    <div class="message-info">${escapeHTML(senderName)} • ${timeString}</div>
                 `;
                 
-                // Add to chat
                 chatMessages.appendChild(messageElement);
-                
-                // Clear input
-                chatInput.value = '';
-                
-                // Scroll to bottom
                 chatMessages.scrollTop = chatMessages.scrollHeight;
-                
-                // In a real implementation, this would send the message to the server
+            }
+
+            function addSystemMessageToChat(messageText) {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message message-system';
+                messageElement.textContent = escapeHTML(messageText);
+                chatMessages.appendChild(messageElement);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Utility to escape HTML to prevent XSS
+            function escapeHTML(str) {
+                const div = document.createElement('div');
+                div.appendChild(document.createTextNode(str));
+                return div.innerHTML;
             }
             
             // Handle leave game button
             leaveBtn.addEventListener('click', function() {
                 if (confirm('Are you sure you want to leave the game?')) {
+                    if (socket && socket.readyState === WebSocket.OPEN) {
+                        socket.send(JSON.stringify({ type: "LEAVE_GAME" }));
+                        socket.close(); // Chủ động đóng kết nối
+                    }
                     window.location.href = 'numberguess.html';
                 }
             });
+
+            // Khởi tạo kết nối WebSocket khi trang được tải
+            connectWebSocket();
+
         });
     </script>
 </body>
