@@ -2,9 +2,15 @@ import asyncio
 import websockets
 import json
 import random
+import os
+import ssl
 from datetime import datetime
 import uuid
-import os
+import logging
+
+# Thiết lập logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('websocket_server')
 
 # Store active game rooms
 game_rooms = {}
@@ -156,11 +162,14 @@ async def handle_connection(websocket, path):
     current_room = None
     player_data = {'id': client_id, 'username': f'Guest_{client_id[:6]}'}
     
+    logger.info(f"New connection established: {client_id}")
+    
     try:
         async for message in websocket:
             try:
                 data = json.loads(message)
                 action = data.get('action')
+                logger.info(f"Received action: {action} from {client_id}")
                 
                 if action == 'join_room':
                     room_id = data.get('room_id')
@@ -315,13 +324,16 @@ async def handle_connection(websocket, path):
                         current_room = None
             
             except json.JSONDecodeError:
+                logger.error(f"Invalid JSON from {client_id}")
                 await websocket.send(json.dumps({
                     'type': 'error',
                     'message': 'Invalid JSON format'
                 }))
     
     except websockets.ConnectionClosed:
-        pass
+        logger.info(f"Connection closed for {client_id}")
+    except Exception as e:
+        logger.error(f"Error handling connection: {str(e)}")
     finally:
         # Clean up when client disconnects
         if client_id in connected_clients:
@@ -343,14 +355,14 @@ async def main():
     # Glitch provides port in environment variable
     port = int(os.environ.get("PORT", 8765))
     
-    # On Glitch, bind to 0.0.0.0
+    # Không cần SSL trên Glitch vì họ đã xử lý HTTPS
     server = await websockets.serve(
         handle_connection,
         "0.0.0.0",  
         port
     )
     
-    print(f"WebSocket server started at ws://0.0.0.0:{port}")
+    logger.info(f"WebSocket server started at ws://0.0.0.0:{port}")
     
     # Clean up empty rooms periodically
     async def cleanup_empty_rooms():
@@ -362,6 +374,7 @@ async def main():
             
             for room_id in to_remove:
                 del game_rooms[room_id]
+                logger.info(f"Removed empty room: {room_id}")
             
             await asyncio.sleep(300)  # Check every 5 minutes
     
@@ -370,4 +383,11 @@ async def main():
     await server.wait_closed()
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    logger.info("Starting WebSocket server...")
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("Server stopped by user")
+    except Exception as e:
+        logger.error(f"Server error: {str(e)}")
+        raise 

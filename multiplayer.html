@@ -767,10 +767,12 @@
             // Show connecting status
             setConnectionStatus('connecting');
             
-            // Try to connect to local server first, fall back to remote
+            // Get proper WebSocket URL based on current location
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const host = window.location.hostname;
             const serverUrl = window.location.hostname === 'localhost' 
                 ? 'ws://localhost:8765' 
-                : 'wss://nbguessing.glitch.me';
+                : `${protocol}//${host}`;
                 
             try {
                 socket = new WebSocket(serverUrl);

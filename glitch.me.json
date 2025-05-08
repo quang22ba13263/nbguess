@@ -1,0 +1,6 @@
+{
+  "webSocketUrl": {
+    "service": "python",
+    "port": 8765
+  }
+} 

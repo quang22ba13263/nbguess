@@ -1,6 +1,6 @@
 {
   "install": "pip3 install --user -r requirements.txt",
-  "start": "python3 server.py",
+  "start": "bash start.sh",
   "watch": {
     "ignore": [
       "\\.pyc$"
@@ -12,5 +12,8 @@
         "^requirements\\.txt$"
       ]
     }
+  },
+  "env": {
+    "PYTHONPATH": "${HOME}/python_modules"
   }
 } 
