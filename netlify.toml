@@ -1,0 +1,8 @@
+[build]
+  publish = "."
+  
+# Redirect all paths to index.html for SPA navigation
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200 
